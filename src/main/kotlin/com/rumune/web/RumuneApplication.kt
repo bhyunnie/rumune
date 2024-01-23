@@ -1,4 +1,4 @@
-package com.rumune.rumune
+package com.rumune.web
 
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication

@@ -1,4 +1,4 @@
-package com.rumune.rumune
+package com.rumune.web
 
 import org.junit.jupiter.api.Test
 import org.springframework.boot.test.context.SpringBootTest
