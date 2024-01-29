@@ -1,5 +1,7 @@
 package com.rumune.web.global.common.request
 
-interface CommonRequest {
+abstract class CommonRequest (
     val apiKey: String
+) {
+
 }
