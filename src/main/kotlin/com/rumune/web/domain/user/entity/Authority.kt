@@ -1,12 +1,9 @@
 package com.rumune.web.domain.user.entity
 
-import com.rumune.web.domain.common.dto.BaseEntity
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.Id
 import jakarta.persistence.IdClass
-import jakarta.persistence.JoinColumn
-import jakarta.persistence.ManyToOne
 import jakarta.persistence.Table
 import org.springframework.security.core.GrantedAuthority
 
@@ -16,21 +13,15 @@ import org.springframework.security.core.GrantedAuthority
 data class Authority (
     @Id
     @Column(name="user_id")
-    val userId: Long,
+    var userId: Long,
 
     @Id
     @Column(name="name")
-    val name: String,
-):GrantedAuthority,BaseEntity<Authority>() {
+    var name: String,
+):GrantedAuthority {
     override fun getAuthority(): String {
         return this.name
     }
-
-    override fun getId(): Authority {
-        return Authority(this.userId,this.name)
-    }
-
-    override fun isNew(): Boolean {
-        return super.new
-    }
 }
+
+// baseEntity 를 상속하면 IdClass Authority 클래스가 통째로 들어가서 전부 ID가 되어버린다. 날짜를 수정할 때 그로인해 문제가 발생한다.
