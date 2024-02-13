@@ -1,4 +1,4 @@
-package com.rumune.web.global.config
+package com.rumune.web.global.security.config
 
 import org.springframework.context.annotation.Configuration
 import org.springframework.web.servlet.config.annotation.CorsRegistry

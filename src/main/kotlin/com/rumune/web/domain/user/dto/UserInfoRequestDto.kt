@@ -1,4 +1,4 @@
 package com.rumune.web.domain.user.dto
 
-import com.rumune.web.global.common.request.CommonRequest
-class UserInfoRequestDto(apiKey: String, userId: String) : CommonRequest(apiKey) {}
+import com.rumune.web.domain.common.dto.CommonRequest
+class UserInfoRequestDto(apiKey: String, userId: Long) : CommonRequest(apiKey) {}
