@@ -1,4 +1,4 @@
-package com.rumune.web.domain.jwt.dto
+package com.rumune.web.domain.user.dto
 
 class AuthenticationResponseDto (
     val userId: Long,

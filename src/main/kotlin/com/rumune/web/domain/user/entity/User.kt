@@ -13,6 +13,7 @@ import jakarta.persistence.JoinColumn
 import jakarta.persistence.OneToMany
 import jakarta.persistence.Table
 import org.springframework.security.core.GrantedAuthority
+import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.core.userdetails.UserDetails
 
 
@@ -60,7 +61,7 @@ class User (
     }
 
     override fun getAuthorities(): MutableCollection<out GrantedAuthority> {
-        return this.authorities
+        return this.authorities.map{it->SimpleGrantedAuthority(it.authority)}.toMutableSet()
     }
 
     override fun getPassword(): String {

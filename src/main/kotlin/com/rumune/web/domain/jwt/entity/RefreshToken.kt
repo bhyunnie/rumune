@@ -20,12 +20,5 @@ data class RefreshToken(
 
     @Column(name="refresh_token", nullable = false)
     var refreshToken: String,
-
-    @Column(name="email", nullable = false)
-    val email:String,
 ) {
-    fun update(newRefreshToken:String): RefreshToken {
-        this.refreshToken = newRefreshToken
-        return this
-    }
 }

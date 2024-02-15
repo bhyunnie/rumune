@@ -22,4 +22,13 @@ class KakaoUserInfo(private val attributes:Map<String,Any>): OAuth2UserInfo {
     override fun getProfileImage(): String {
         return properties["profile_image"].toString()
     }
+
+    override fun getAttributes(): Map<String, String> {
+        return mapOf(
+            "id" to attributes["id"].toString(),
+            "email" to attributes["email"].toString(),
+            "name" to attributes["nickname"].toString(),
+            "profile_image" to attributes["profile_image"].toString()
+        )
+    }
 }

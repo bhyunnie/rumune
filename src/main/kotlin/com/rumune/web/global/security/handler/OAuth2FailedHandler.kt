@@ -1,11 +1,11 @@
-package com.rumune.web.global.exception.entrypoint
+package com.rumune.web.global.security.handler
 
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
 import org.springframework.security.core.AuthenticationException
 import org.springframework.security.web.AuthenticationEntryPoint
 
-class OAuth2FailedAuthenticationEntryPoint: AuthenticationEntryPoint {
+class OAuth2FailedHandler: AuthenticationEntryPoint {
     @Override
     override fun commence(
         request: HttpServletRequest?,

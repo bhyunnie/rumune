@@ -6,4 +6,5 @@ interface OAuth2UserInfo {
     fun getEmail():String
     fun getName():String
     fun getProfileImage():String
+    fun getAttributes():Map<String, String>
 }

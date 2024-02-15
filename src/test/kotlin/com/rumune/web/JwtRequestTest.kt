@@ -1,6 +1,5 @@
 package com.rumune.web
 
-import com.rumune.web.global.exception.response.UserLoginForm
 import com.rumune.web.domain.user.application.UserService
 import com.rumune.web.domain.user.dto.CreateUserRequestDto
 import com.rumune.web.domain.user.repository.UserRepository
@@ -39,10 +38,6 @@ class JwtRequestTest {
     @DisplayName("1. hello 메세지를 받아온다...")
     @Test
     fun test_1() {
-        val client = RestTemplate()
-        val entity: HttpEntity<UserLoginForm> = HttpEntity(UserLoginForm(email = "qudgus9601", password= "1111"))
-        val result = client.exchange<String>("/login", HttpMethod.POST,entity, UserLoginForm::class.java)
-        println(result.headers[HttpHeaders.AUTHORIZATION]?.get(0));
-        println(result.body)
+
     }
 }

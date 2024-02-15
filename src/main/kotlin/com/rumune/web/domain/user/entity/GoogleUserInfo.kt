@@ -24,4 +24,13 @@ class GoogleUserInfo(
     override fun getProfileImage(): String {
         return attributes["picture"].toString()
     }
+
+    override fun getAttributes(): Map<String, String> {
+        return mapOf(
+            "id" to attributes["id"].toString(),
+            "email" to attributes["email"].toString(),
+            "name" to attributes["name"].toString(),
+            "profile_image" to attributes["picture"].toString()
+        )
+    }
 }

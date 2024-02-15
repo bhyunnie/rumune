@@ -1,8 +1,7 @@
 package com.rumune.web.global.security.filter
 
 import com.rumune.web.domain.user.application.UserService
-import com.rumune.web.domain.jwt.application.JwtService
-import com.rumune.web.domain.user.entity.User
+import com.rumune.web.global.util.JwtUtil
 import jakarta.servlet.FilterChain
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
@@ -16,7 +15,7 @@ import org.springframework.web.filter.OncePerRequestFilter
 
 @Component
 class JwtAuthenticationFilter(
-    private val jwtService: JwtService,
+    private val jwtUtil: JwtUtil,
     private val userService: UserService,
 ): OncePerRequestFilter() {
     companion object {
@@ -39,19 +38,19 @@ class JwtAuthenticationFilter(
         if (authorizationHeader == null) throw AuthenticationException("인증 헤더 값을 찾을 수 없습니다.")
 
         val token = authorizationHeader.extractTokenValue()
-        val email = jwtService.getEmailOfToken(token)
+        val email = jwtUtil.getEmailOfToken(token)
 
         if (email != null && SecurityContextHolder.getContext().authentication == null) {
-            val userInfo = userService.findUserByEmail(email)
+            val userInfo = userService.findUserByEmail(email).get()
             val foundUser = userService.loadUserByUsername(userInfo.email)
-            if(jwtService.validToken(token, foundUser)) {
-                updateContext(foundUser, token,request)
+            if(jwtUtil.validToken(token, foundUser)) {
+                updateContext(foundUser, request)
             }
         }
         filterChain.doFilter(request,response)
     }
 
-    private fun updateContext(user:UserDetails,token:String,request:HttpServletRequest) {
+    private fun updateContext(user:UserDetails,request:HttpServletRequest) {
         val authenticationToken = UsernamePasswordAuthenticationToken(user,null,user.authorities)
         authenticationToken.details = WebAuthenticationDetailsSource().buildDetails(request)
         SecurityContextHolder.getContext().authentication = authenticationToken
@@ -65,10 +64,3 @@ class JwtAuthenticationFilter(
         return this.substringAfter("Bearer ")
     }
 }
-
-/*
-private fun updateContext(foundUser: UserDetails, request: HttpServletRequest) {
-    val authenticationToken = UsernamePasswordAuthenticationToken(foundUser, null,foundUser.authorities)
-    authenticationToken.details = WebAuthenticationDetailsSource().buildDetails(request)
-    SecurityContextHolder.getContext().authentication = authenticationToken
-}*/

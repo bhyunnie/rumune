@@ -2,11 +2,13 @@ package com.rumune.web.domain.user.application
 
 import com.rumune.web.domain.user.entity.*
 import com.rumune.web.domain.user.repository.UserRepository
+import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest
+import org.springframework.security.oauth2.core.user.DefaultOAuth2User
 import org.springframework.security.oauth2.core.user.OAuth2User
 import org.springframework.stereotype.Component
-import org.springframework.stereotype.Service
+import java.util.Collections
 
 @Component
 class CustomOAuth2UserService(
@@ -27,24 +29,23 @@ class CustomOAuth2UserService(
                 else -> null
             }
 
-            if (userInfo != null) {
-                val isNew = userRepository.findByEmail(userInfo.getEmail()).isEmpty
-                if (isNew) {
-                    userRepository.save(
-                        User(
-                            provider = userInfo.getProvider(),
-                            email = userInfo.getEmail(),
-                            pwd = "",
-                            profileImage = userInfo.getProfileImage(),
-                            providerId = userInfo.getId(),
-                            name = userInfo.getName()
-                        )
-                    )
-                    userService.addAuthority(userInfo.getEmail(),"ROLE_USER")
-                }
-            }
+            if(userInfo == null) return oAuth2User
 
-            return oAuth2User
+            val isNew = userRepository.findByEmail(userInfo.getEmail()).isEmpty
+            if (isNew) {
+                userRepository.save(
+                    User(
+                        provider = userInfo.getProvider(),
+                        email = userInfo.getEmail(),
+                        pwd = "",
+                        profileImage = userInfo.getProfileImage(),
+                        providerId = userInfo.getId(),
+                        name = userInfo.getName()
+                    )
+                )
+                userService.addAuthority(userInfo.getEmail(),"ROLE_USER")
+            }
+            return DefaultOAuth2User(Collections.singleton(SimpleGrantedAuthority("ROLE_USER")), userInfo.getAttributes(), "email")
         } catch (e:Exception) {
             throw e
         }

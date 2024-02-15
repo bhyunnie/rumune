@@ -1,4 +1,4 @@
-package com.rumune.web.domain.jwt.dto
+package com.rumune.web.domain.user.dto
 
 data class CreateAccessTokenResponseDto (
     val accessToken:String
