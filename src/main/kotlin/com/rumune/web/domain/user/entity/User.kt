@@ -57,7 +57,7 @@ class User (
 
     @Override
     override fun isNew(): Boolean {
-        return super.new
+        return this.new
     }
 
     override fun getAuthorities(): MutableCollection<out GrantedAuthority> {
