@@ -36,7 +36,7 @@ class OAuth2SuccessHandler(
         saveRefreshToken(user, refreshToken)
 
         response.addCookie(cookie)
-        request.getRequestDispatcher("/api/oauth2").forward(request,response)
+        response.sendRedirect("http://localhost:3000")
     }
 
     private fun saveRefreshToken(user: User, newRefreshToken: String) {
