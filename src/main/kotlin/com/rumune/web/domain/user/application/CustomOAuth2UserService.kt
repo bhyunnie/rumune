@@ -31,7 +31,8 @@ class CustomOAuth2UserService(
 
             if(userInfo == null) return oAuth2User
 
-            val isNew = userRepository.findByEmail(userInfo.getEmail()).isEmpty
+            println(userService.findUserByEmail(userInfo.getEmail()).get())
+            val isNew = userService.findUserByEmail(userInfo.getEmail()).isEmpty
             if (isNew) {
                 userRepository.save(
                     User(

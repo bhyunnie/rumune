@@ -27,7 +27,7 @@ class GoogleUserInfo(
 
     override fun getAttributes(): Map<String, String> {
         return mapOf(
-            "id" to attributes["id"].toString(),
+            "id" to attributes["sub"].toString(),
             "email" to attributes["email"].toString(),
             "name" to attributes["name"].toString(),
             "profile_image" to attributes["picture"].toString()
