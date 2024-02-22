@@ -16,11 +16,11 @@ class StoreService(
         return storeRepository.save(Store(name=name, description = description))
     }
     // Read
-    fun findStoreList():MutableList<Store> {
+    fun findStoreList():List<Store> {
         return storeRepository.findAll()
     }
 
-    fun findStoreByName(name:String):MutableList<Store> {
+    fun findStoreByName(name:String):List<Store> {
         val storeOptional = storeRepository.findByName(name)
         return if(storeOptional.isPresent) {
             mutableListOf(storeOptional.get())

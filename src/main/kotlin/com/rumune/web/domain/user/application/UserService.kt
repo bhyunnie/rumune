@@ -7,6 +7,7 @@ import com.rumune.web.domain.user.dto.CreateUserRequestDto
 import com.rumune.web.domain.user.entity.Authority
 import com.rumune.web.domain.user.entity.User
 import com.rumune.web.domain.jwt.repository.RefreshTokenRepository
+import com.rumune.web.domain.user.dto.UserDto
 import com.rumune.web.domain.user.repository.UserRepository
 import com.rumune.web.global.util.JwtUtil
 import jakarta.transaction.Transactional
@@ -42,8 +43,13 @@ class UserService(
         return userRepository.findByUserId(userId)
     }
 
-    fun findUserByEmail(email:String): Optional<User> {
-        return userRepository.findByEmail(email)
+    fun findUserByEmail(email:String): List<UserDto> {
+        val userOptional = userRepository.findByEmail(email)
+        return if (userOptional.isPresent) {
+            listOf(UserDto.from(userOptional.get()))
+        } else {
+            listOf()
+        }
     }
 
     fun findUserByProviderId(providerId:String): Optional<User> {
@@ -55,6 +61,16 @@ class UserService(
         if (userOptional.isEmpty) throw UsernameNotFoundException("유저 정보가 없습니다.")
         val user = userOptional.get()
         return user
+    }
+
+    fun checkAuthority(email:String, authority:String): Boolean {
+        val userOptional = userRepository.findByEmail(email)
+        if (userOptional.isPresent) {
+            val user = userOptional.get()
+            return user.authorities.contains(Authority(userId = user.userId, name = authority))
+        } else {
+            return false
+        }
     }
 
     fun addAuthority(email:String, authority: String) {
@@ -82,8 +98,16 @@ class UserService(
         }
     }
 
+    fun findAll(): List<UserDto> {
+        val userList = userRepository.findAll()
+        return userList.map{
+            user ->
+            UserDto.from(user)
+        }
+    }
+
     fun authentication(authenticationRequest: AuthenticationRequestDto): AuthenticationResponseDto {
-         val authenticationManager = applicationContext.getBean(AuthenticationManager::class.java)
+        val authenticationManager = applicationContext.getBean(AuthenticationManager::class.java)
         authenticationManager.authenticate(UsernamePasswordAuthenticationToken(authenticationRequest.email, authenticationRequest.password))
         val user = loadUserByUsername(authenticationRequest.email)
         val accessToken = jwtUtil.generateAccessToken(user.email)
