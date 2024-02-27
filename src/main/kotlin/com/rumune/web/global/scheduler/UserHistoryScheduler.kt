@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component
 class UserHistoryScheduler(
     private val userHistoryService: UserHistoryService
 ) {
-    @Scheduled(cron = "0 0 */4 * * *")
+    @Scheduled(cron = "0 0 * * * *")
     fun insertUserCountHistory() {
         userHistoryService.saveUserCountHistory()
     }

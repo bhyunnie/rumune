@@ -1,6 +1,7 @@
 package com.rumune.web.domain.user.api
 
 import com.rumune.web.domain.common.enum.Responses
+import com.rumune.web.domain.user.application.UserHistoryService
 import com.rumune.web.domain.user.application.UserService
 import com.rumune.web.domain.user.dto.*
 import com.rumune.web.global.util.CookieUtil
@@ -10,10 +11,12 @@ import jakarta.servlet.http.HttpServletResponse
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
+import java.time.OffsetDateTime
 
 @RestController
 class UserApi(
     private val userService: UserService,
+    private val userHistoryService: UserHistoryService,
     private val cookieUtil: CookieUtil,
     private val validateUtil: ValidateUtil
 ) {
@@ -24,7 +27,7 @@ class UserApi(
         return ResponseEntity.ok(
             UserInfoResponseDto(
                 Responses.OK,
-                "유저 정보 조회 완료",
+                OffsetDateTime.now().toString(),
                 userList
             )
         )
@@ -63,6 +66,19 @@ class UserApi(
                 "권한 없음",
                 false))
         }
+    }
+
+    @GetMapping("/api/v1/admin/user/count")
+    fun getUserCount(@ModelAttribute getUserHistoryRequestDto: GetUserHistoryRequestDto):ResponseEntity<GetUserHistoryResponseDto> {
+        val response = userHistoryService.getUserCountHistory(getUserHistoryRequestDto.date)
+        return ResponseEntity.ok(
+            GetUserHistoryResponseDto(
+                status=Responses.OK,
+                message = "완료",
+                responseData = response.map{ it -> UserCountHistoryDto.from(it)}
+            )
+
+        )
     }
 
     // POST

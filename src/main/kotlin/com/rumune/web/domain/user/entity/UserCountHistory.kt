@@ -13,7 +13,7 @@ data class UserCountHistory(
 
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name="snapshot_time", nullable = false, updatable = false)
-    var snapShotTime: OffsetDateTime? = OffsetDateTime.now(),
+    var snapShotTime: OffsetDateTime = OffsetDateTime.now(),
 
     @Column(name = "count")
     val count: Int,

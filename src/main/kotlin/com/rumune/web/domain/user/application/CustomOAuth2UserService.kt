@@ -3,6 +3,7 @@ package com.rumune.web.domain.user.application
 import com.rumune.web.domain.user.entity.*
 import com.rumune.web.domain.user.repository.UserRepository
 import com.rumune.web.global.exception.OAuth2AlreadyExistException
+import org.springframework.security.core.GrantedAuthority
 import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest
@@ -32,6 +33,7 @@ class CustomOAuth2UserService(
         if(userInfo == null) return oAuth2User
 
         val foundUserList = userService.findUserByEmail(userInfo.getEmail())
+        val authorities:Set<SimpleGrantedAuthority>
         if (foundUserList.isEmpty()) {
             userRepository.save(
                 User(
@@ -44,9 +46,12 @@ class CustomOAuth2UserService(
                 )
             )
             userService.addAuthority(userInfo.getEmail(),"ROLE_USER")
+            authorities = HashSet(listOf(SimpleGrantedAuthority("ROLE_USER")))
         } else if (foundUserList[0].provider != provider) {
             throw OAuth2AlreadyExistException("이미 다른 서비스를 통해 가입 내역이 있는 이메일입니다.", foundUserList[0].provider, foundUserList[0].email)
+        } else {
+            authorities = foundUserList[0].authorities.map{it->SimpleGrantedAuthority(it.name)}.toSet()
         }
-        return DefaultOAuth2User(foundUserList[0].authorities, userInfo.getAttributes(), "email")
+        return DefaultOAuth2User(authorities ?: listOf(), userInfo.getAttributes(), "email")
     }
 }

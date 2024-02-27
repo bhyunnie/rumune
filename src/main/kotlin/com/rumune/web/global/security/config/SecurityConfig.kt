@@ -54,7 +54,7 @@ class SecurityConfig(
                         "/api/v1/signin",
                     ).permitAll()
                     .requestMatchers("/api/v1/admin/**").hasRole("ADMIN")
-                    .requestMatchers("/api/**").authenticated()
+//                    .requestMatchers("/api/**").authenticated()
                     .anyRequest().permitAll() // 제외 전부 권한 체크
             }
             .exceptionHandling{ exception ->
