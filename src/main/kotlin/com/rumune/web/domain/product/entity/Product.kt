@@ -1,15 +1,16 @@
 package com.rumune.web.domain.product.entity
 
+import com.rumune.web.domain.category.entity.Category
 import com.rumune.web.domain.common.dto.BaseEntity
+import com.rumune.web.domain.file.entity.File
 import jakarta.persistence.*
-import java.util.UUID
 
 @Entity
 @Table(name = "product")
 class Product(
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    val UUID: UUID,
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    val id:Long,
 
     @Column(name = "name")
     val name:String,
@@ -20,19 +21,24 @@ class Product(
     @Column(name = "quantityLimit")
     val quantityLimit: Int,
 
-    @Column(name = "productImage")
-    val productImage: String,
+    @OneToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+        name = "product_image",
+        joinColumns = [JoinColumn(name = "product_id")],
+        inverseJoinColumns = [JoinColumn(name = "file_id")]
+    )
+    val productImage: MutableSet<File> = HashSet(),
 
-    @ManyToMany(fetch = FetchType.LAZY)
+    @OneToMany(fetch = FetchType.LAZY)
     @JoinTable(
         name = "product_category",
         joinColumns = [JoinColumn(name = "product_id")],
-        inverseJoinColumns = [JoinColumn(name = "category_name")]
+        inverseJoinColumns = [JoinColumn(name = "category_id")]
     )
     val categories: MutableSet<Category> = HashSet()
-):BaseEntity<UUID>() {
-    override fun getId(): UUID? {
-        return this.UUID
+):BaseEntity<Long>() {
+    override fun getId(): Long? {
+        return this.id
     }
 
     override fun isNew(): Boolean {

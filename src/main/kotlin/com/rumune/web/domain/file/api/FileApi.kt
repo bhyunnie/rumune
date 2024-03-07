@@ -1,28 +1,25 @@
 package com.rumune.web.domain.file.api
 
-import com.amazonaws.services.s3.AmazonS3Client
-import com.amazonaws.services.s3.model.ObjectMetadata
 import com.rumune.web.domain.common.enum.Responses
+import com.rumune.web.domain.file.application.FileService
 import com.rumune.web.domain.file.dto.FileUploadResponseDto
-import com.rumune.web.global.properties.CloudProperties
-import com.rumune.web.global.util.FileUtil
-import org.apache.catalina.util.URLEncoder
+import com.rumune.web.domain.file.dto.PostFileUploadRequestDto
+import com.rumune.web.global.util.ValidateUtil
+import jakarta.servlet.http.HttpServletRequest
 import org.springframework.http.ResponseEntity
+import org.springframework.web.bind.annotation.ModelAttribute
 import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
-import org.springframework.web.multipart.MultipartFile
-import java.io.InputStream
 
 @RestController
 class FileApi(
-    private val amazonS3Client: AmazonS3Client,
-    private val cloudProperties: CloudProperties,
-    private val fileUtil: FileUtil
+    private val fileService: FileService,
+    private val validateUtil: ValidateUtil
 ) {
-    @PostMapping("/api/v1/file/upload")
-    fun uploadImage(@RequestParam("file") file:MultipartFile):ResponseEntity<FileUploadResponseDto> {
-        val imageUrl = fileUtil.uploadToS3(file, "/temp")
+    @PostMapping("/api/v1/file/upload/post")
+    fun uploadImage(@ModelAttribute postFileUploadRequestDto: PostFileUploadRequestDto, request:HttpServletRequest):ResponseEntity<FileUploadResponseDto> {
+        val userId = validateUtil.extractUserIdFromBearerToken(request)
+        val imageUrl = fileService.uploadToS3(postFileUploadRequestDto.file, "/temp", userId=userId)
         return ResponseEntity.ok(
             FileUploadResponseDto(
                 Responses.OK,
