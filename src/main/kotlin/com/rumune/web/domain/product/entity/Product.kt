@@ -1,8 +1,8 @@
 package com.rumune.web.domain.product.entity
 
+import com.fasterxml.jackson.annotation.JsonManagedReference
 import com.rumune.web.domain.category.entity.Category
 import com.rumune.web.domain.common.dto.BaseEntity
-import com.rumune.web.domain.file.entity.File
 import jakarta.persistence.*
 
 @Entity
@@ -10,26 +10,22 @@ import jakarta.persistence.*
 class Product(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    val id:Long,
+    val id:Long = 0,
 
-    @Column(name = "name")
-    val name:String,
+    @Column(name = "name", unique = true)
+    val name:String ="",
 
     @Column(name = "price")
-    val price:Int,
+    val price:Int =0,
 
     @Column(name = "quantityLimit")
-    val quantityLimit: Int,
+    val quantityLimit: Int = 0,
 
-    @OneToMany(fetch = FetchType.LAZY)
-    @JoinTable(
-        name = "product_image",
-        joinColumns = [JoinColumn(name = "product_id")],
-        inverseJoinColumns = [JoinColumn(name = "file_id")]
-    )
-    val productImage: MutableSet<File> = HashSet(),
+    @OneToMany(fetch = FetchType.EAGER, cascade = [CascadeType.REMOVE], mappedBy = "product")
+    @JsonManagedReference
+    var image: MutableSet<ProductImage> = mutableSetOf(),
 
-    @OneToMany(fetch = FetchType.LAZY)
+    @ManyToMany(fetch = FetchType.LAZY, cascade = [CascadeType.REMOVE])
     @JoinTable(
         name = "product_category",
         joinColumns = [JoinColumn(name = "product_id")],

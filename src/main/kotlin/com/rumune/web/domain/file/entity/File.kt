@@ -1,10 +1,9 @@
 package com.rumune.web.domain.file.entity
 
+import com.fasterxml.jackson.annotation.JsonManagedReference
 import com.rumune.web.domain.common.dto.BaseEntity
-import jakarta.persistence.Column
-import jakarta.persistence.Entity
-import jakarta.persistence.Id
-import jakarta.persistence.Table
+import com.rumune.web.domain.product.entity.ProductImage
+import jakarta.persistence.*
 import java.util.UUID
 
 @Entity
@@ -14,17 +13,18 @@ class File(
     @Column(name="file_uuid")
     val fileUUID: UUID = UUID.randomUUID(),
 
-    @Column(name="ext")
-    val ext: String,
-
     @Column(name="upload_user_id")
-    val uploadUserId: Long,
+    val uploadUserId: Long = 0,
 
     @Column(name="file_size")
-    val fileSize: Long,
+    val fileSize: Long = 0,
 
-    @Column(name="bucket")
-    val bucketName: String,
+    @Column(name="file_url")
+    val fileURL: String = "",
+
+    @OneToMany(fetch = FetchType.LAZY, cascade = [CascadeType.REMOVE], mappedBy = "image")
+    @JsonManagedReference
+    val product: MutableSet<ProductImage> = mutableSetOf(),
 ):BaseEntity<UUID>() {
     override fun getId(): UUID? {
         return this.fileUUID

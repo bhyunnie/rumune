@@ -27,7 +27,7 @@ class CategoryApi(
         )
     }
     // Read
-    @GetMapping("/admin/api/v1/category")
+    @GetMapping("/api/v1/category")
     fun findAllCategory():ResponseEntity<CategoryResponse> {
         val result = categoryService.findAllCategory()
         return ResponseEntity.ok(

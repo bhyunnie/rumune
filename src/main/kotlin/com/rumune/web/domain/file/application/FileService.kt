@@ -18,12 +18,11 @@ class FileService(
     private val cloudProperties: CloudProperties,
     private val amazonS3Client: AmazonS3Client,
 ) {
-    fun uploadToS3 (file: MultipartFile, directory:String = "", userId:Long):String {
+    fun uploadToS3 (file: MultipartFile,fileKey:UUID, directory:String = "", userId:Long):String {
         try {
         val path = if(directory == "") "" else removeSlash(directory)
         val bucketName = "${cloudProperties.aws.s3.bucket}/${path}"
         val ext = file.originalFilename?.substringAfter(".")?:throw Exception()
-        val fileKey = UUID.randomUUID()
         val fileName = "${fileKey}.$ext"
             val inputStream: InputStream = file.inputStream
             val metadata = ObjectMetadata()
@@ -32,13 +31,19 @@ class FileService(
             amazonS3Client.putObject(
                 PutObjectRequest(bucketName, fileName, inputStream, metadata).withCannedAcl(
                     CannedAccessControlList.PublicRead))
-            fileRepository.save(
-                File(fileUUID = fileKey, ext=ext, bucketName=bucketName, fileSize=file.size, uploadUserId=userId)
-            )
             return amazonS3Client.getUrl(bucketName, fileName).toString()
         } catch (e : Exception) {
             throw e
         }
+    }
+
+    fun createFile(fileUUID:UUID,userId:Long, fileSize:Long, fileURL:String):File {
+        return fileRepository.save(File(
+            fileUUID = fileUUID,
+            uploadUserId = userId,
+            fileSize = fileSize,
+            fileURL = fileURL,
+        ))
     }
 
     private fun removeSlash (directory: String):String {
