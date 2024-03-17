@@ -1,6 +1,6 @@
 package com.rumune.web.domain.user.api
 
-import com.rumune.web.domain.common.enum.Responses
+import com.rumune.web.global.enum.Responses
 import com.rumune.web.domain.user.application.UserHistoryService
 import com.rumune.web.domain.user.application.UserService
 import com.rumune.web.domain.user.dto.*
@@ -73,7 +73,7 @@ class UserApi(
         val response = userHistoryService.getUserCountHistory(getUserHistoryRequestDto.date)
         return ResponseEntity.ok(
             GetUserHistoryResponseDto(
-                status=Responses.OK,
+                status= Responses.OK,
                 message = "완료",
                 responseData = response.map{ it -> UserCountHistoryDto.from(it)}
             )
