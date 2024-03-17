@@ -1,8 +1,9 @@
 package com.rumune.web.domain.post.entity
 
+import com.fasterxml.jackson.annotation.JsonManagedReference
 import com.rumune.web.domain.common.dto.BaseEntity
 import com.rumune.web.domain.file.entity.File
-import com.rumune.web.domain.product.entity.Product
+import com.rumune.web.domain.user.entity.User
 import jakarta.persistence.*
 import java.util.UUID
 
@@ -13,23 +14,25 @@ class ProductPost(
     @GeneratedValue(strategy = GenerationType.UUID)
     val uuid:UUID = UUID.randomUUID(),
 
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="thumbnail_file_id")
-    val thumbnail: File,
-
-    @Column(name="content")
+    val title: String,
     val content: String,
+    val discount: Double,
+    val deliveryFee: Int,
+    @OneToOne
+    @JoinColumn(name="created_by")
+    val createdBy: User,
 
-    @Column(name="created_by")
-    val createdBy: String,
+    @OneToOne
+    @JoinColumn(name="thumbnail_url", referencedColumnName = "file_url")
+    val thumbnailURL: File,
 
-    @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(
-        name="product_post_product",
-        joinColumns = [JoinColumn(name = "product_post_uuid")],
-        inverseJoinColumns = [JoinColumn(name = "product_id")]
-    )
-    val products: MutableSet<Product>,
+    @OneToMany(mappedBy = "productPost")
+    @JsonManagedReference
+    val image: List<ProductPostFile>,
+
+    @OneToMany(mappedBy = "productPost")
+    @JsonManagedReference
+    val products: List<ProductPostProduct>,
 ):BaseEntity<UUID>() {
     override fun getId(): UUID? {
         return this.uuid

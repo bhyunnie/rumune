@@ -1,8 +1,6 @@
 package com.rumune.web.domain.file.entity
 
-import com.fasterxml.jackson.annotation.JsonManagedReference
 import com.rumune.web.domain.common.dto.BaseEntity
-import com.rumune.web.domain.product.entity.ProductImage
 import jakarta.persistence.*
 import java.util.UUID
 
@@ -21,10 +19,6 @@ class File(
 
     @Column(name="file_url")
     val fileURL: String = "",
-
-    @OneToMany(fetch = FetchType.LAZY, cascade = [CascadeType.REMOVE], mappedBy = "image")
-    @JsonManagedReference
-    val product: MutableSet<ProductImage> = mutableSetOf(),
 ):BaseEntity<UUID>() {
     override fun getId(): UUID? {
         return this.fileUUID

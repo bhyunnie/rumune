@@ -14,14 +14,10 @@ class Product(
 
     @Column(name = "name", unique = true)
     val name:String ="",
-
-    @Column(name = "price")
     val price:Int =0,
-
-    @Column(name = "quantityLimit")
     val quantityLimit: Int = 0,
 
-    @OneToMany(fetch = FetchType.EAGER, cascade = [CascadeType.REMOVE], mappedBy = "product")
+    @OneToMany(mappedBy = "product")
     @JsonManagedReference
     var image: MutableSet<ProductImage> = mutableSetOf(),
 
