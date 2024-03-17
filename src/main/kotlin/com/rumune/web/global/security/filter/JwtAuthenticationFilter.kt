@@ -1,7 +1,7 @@
 package com.rumune.web.global.security.filter
 
 import com.rumune.web.domain.user.application.UserService
-import com.rumune.web.global.util.JwtUtil
+import com.rumune.web.domain.jwt.application.JwtService
 import jakarta.servlet.FilterChain
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
@@ -15,12 +15,11 @@ import org.springframework.web.filter.OncePerRequestFilter
 
 @Component
 class JwtAuthenticationFilter(
-    private val jwtUtil: JwtUtil,
+    private val jwtService: JwtService,
     private val userService: UserService,
 ): OncePerRequestFilter() {
     companion object {
         const val HEADER_AUTHORIZATION = "Authorization"
-        const val TOKEN_PREFIX = "Bearer "
     }
 
     @Override
@@ -38,12 +37,12 @@ class JwtAuthenticationFilter(
         if (authorizationHeader == null) throw AuthenticationException("인증 헤더 값을 찾을 수 없습니다.")
 
         val token = authorizationHeader.extractTokenValue()
-        val email = jwtUtil.getEmailOfToken(token)
+        val email = jwtService.getEmailOfToken(token)
 
-        if (email != null && SecurityContextHolder.getContext().authentication == null) {
+        if (email.isNotEmpty() && SecurityContextHolder.getContext().authentication == null) {
             val userInfo = userService.findUserByEmail(email)[0]
             val foundUser = userService.loadUserByUsername(userInfo.email)
-            if(jwtUtil.validToken(token, foundUser)) {
+            if(jwtService.validToken(token, foundUser, email)) {
                 updateContext(foundUser, request)
             }
         }

@@ -33,6 +33,9 @@ class SecurityConfig(
         oAuth2FailedHandler: OAuth2FailedHandler
     ): SecurityFilterChain {
         http
+            .httpBasic{ hb ->
+                hb.disable()
+            }
             .formLogin { form ->
                 form.disable()
             }

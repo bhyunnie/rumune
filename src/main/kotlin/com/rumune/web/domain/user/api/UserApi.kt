@@ -45,7 +45,7 @@ class UserApi(
         try {
             val email = validateUtil.extractEmailFromBearerToken(request)
             val userList = userService.findUserByEmail(email)
-            return ResponseEntity.ok(UserInfoResponseDto(Responses.OK, "API 요청 완료", userList))
+            return ResponseEntity.ok(UserInfoResponseDto(Responses.OK, "API 요청 완료", userList.map{UserDto.from(it)}))
         } catch (e:Exception) {
             return ResponseEntity.ok(UserInfoResponseDto(Responses.ERROR, e.message.toString(), listOf()))
         }
