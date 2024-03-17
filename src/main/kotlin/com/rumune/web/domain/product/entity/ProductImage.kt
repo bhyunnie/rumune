@@ -11,13 +11,12 @@ class ProductImage(
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     var id:Long=0,
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JsonBackReference
+    @ManyToOne
     @JoinColumn(name = "product_id")
+    @JsonBackReference
     val product: Product,
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JsonBackReference
+    @ManyToOne
     @JoinColumn(name = "file_uuid")
     val image: File,
 
