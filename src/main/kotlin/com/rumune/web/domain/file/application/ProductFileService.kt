@@ -10,7 +10,7 @@ import org.springframework.stereotype.Service
 class ProductFileService(
     private val productFileRepository: ProductFileRepository,
 ) {
-    fun createProductFile(fileList:List<ProductImage>, product:Product, file:File, order:Int):ProductImage {
+    fun createProductFile(product:Product, file:File, order:Int):ProductImage {
         return productFileRepository.save(ProductImage(
             product = product,
             image = file,

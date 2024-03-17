@@ -18,8 +18,10 @@ class FileService(
     private val cloudProperties: CloudProperties,
     private val amazonS3Client: AmazonS3Client,
 ) {
-    fun uploadToS3 (file: MultipartFile,fileKey:UUID, directory:String = "", userId:Long):String {
+
+    private fun uploadToS3 (file: MultipartFile,fileKey:UUID, directory:String = ""):String {
         try {
+        if(!checkIsImage(file)) throw Exception("is not image file")
         val path = if(directory == "") "" else removeSlash(directory)
         val bucketName = "${cloudProperties.aws.s3.bucket}/${path}"
         val ext = file.originalFilename?.substringAfter(".")?:throw Exception()
@@ -37,16 +39,24 @@ class FileService(
         }
     }
 
-    fun createFile(fileUUID:UUID,userId:Long, fileSize:Long, fileURL:String):File {
+    fun createFile(file:MultipartFile, userId:Long, directory:String):File {
+        val fileUUID = UUID.randomUUID()
+        val fileURL = uploadToS3(file,fileUUID,directory)
+
         return fileRepository.save(File(
             fileUUID = fileUUID,
             uploadUserId = userId,
-            fileSize = fileSize,
+            fileSize = file.size,
             fileURL = fileURL,
         ))
     }
 
     private fun removeSlash (directory: String):String {
         return directory.replace("/", "")
+    }
+
+    private fun checkIsImage (file:MultipartFile): Boolean {
+        return file.contentType in arrayOf("image/jpeg", "image/png","image/jpg", "image/webp", "image/svg+xml",
+            "image/bmp", "image/x-icon", "image/vnd.microsoft.icon")
     }
 }
