@@ -1,4 +1,4 @@
-package com.rumune.web.domain.common.enum
+package com.rumune.web.global.enum
 
 import org.springframework.http.HttpStatus
 

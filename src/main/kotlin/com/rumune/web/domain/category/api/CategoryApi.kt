@@ -3,7 +3,7 @@ package com.rumune.web.domain.category.api
 import com.rumune.web.domain.category.application.CategoryService
 import com.rumune.web.domain.category.dto.response.CategoryResponse
 import com.rumune.web.domain.category.dto.response.CreateCategoryResponse
-import com.rumune.web.domain.common.enum.Responses
+import com.rumune.web.global.enum.Responses
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
