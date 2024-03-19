@@ -4,15 +4,14 @@ import com.rumune.web.domain.category.entity.Category
 import com.rumune.web.domain.category.repository.CategoryRepository
 import com.rumune.web.global.exception.CategoryException
 import org.springframework.stereotype.Service
-import java.io.IOException
 
 @Service
 class CategoryService(
     private val categoryRepository: CategoryRepository
 ) {
-    fun createCategory(categoryName:String):Boolean {
+    fun createCategory(categoryName:String, englishName:String):Boolean {
         try {
-            categoryRepository.save(Category(name=categoryName))
+            categoryRepository.save(Category(name=categoryName, englishName = englishName))
             return true
         } catch (e:Exception) {
             throw CategoryException("카테고리 생성 중 에러가 발생했습니다.")

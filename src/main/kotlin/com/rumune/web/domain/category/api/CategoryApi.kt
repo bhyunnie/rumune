@@ -16,8 +16,8 @@ class CategoryApi(
 ) {
     // Create
     @PostMapping("/admin/api/v1/category")
-    fun createCategory(@RequestParam categoryName:String):ResponseEntity<CreateCategoryResponse> {
-        val result = categoryService.createCategory(categoryName)
+    fun createCategory(@RequestParam categoryName:String, @RequestParam englishName:String):ResponseEntity<CreateCategoryResponse> {
+        val result = categoryService.createCategory(categoryName, englishName)
         return ResponseEntity.ok(
             CreateCategoryResponse(
                 message = "카테고리 추가 완료",
