@@ -12,6 +12,7 @@ class FindProductResponse(
     val category: List<String>,
     val image: List<String>,
     val thumbnail: String,
+    val stock: Int,
 ) {
     companion object {
         fun from (
@@ -25,7 +26,8 @@ class FindProductResponse(
                 createdAt = DateUtil().offsetDateTimeToYYYYMMDD(p.createdAt),
                 category = p.categories.map {it.name},
                 image = p.image.sortedBy { it.order }.map{it.image.fileURL},
-                thumbnail = p.image.sortedBy{ it.order }.first().image.fileURL
+                thumbnail = p.image.sortedBy{ it.order }.first().image.fileURL,
+                stock = p.stock
             )
         }
     }

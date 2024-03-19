@@ -1,11 +1,15 @@
 package com.rumune.web.domain.post.dto.request
 
-import com.rumune.web.domain.file.entity.File
+import org.springframework.web.multipart.MultipartFile
 
-class CreateProductPostRequest(
-    title:String,
-    content:String,
-    file:File,
-    productIdList: List<Long>
+data class CreateProductPostRequest(
+    val thumbnail:MultipartFile,
+    val title:String,
+    val discount: Int,
+    val deliveryFee: Int,
+    val productIdList: List<Long>,
+    val content:String,
+    val domain:String,
+    val postImageURLList: List<String>
 ) {
 }

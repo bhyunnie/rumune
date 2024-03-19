@@ -2,17 +2,14 @@ package com.rumune.web.domain.post.entity
 
 import com.fasterxml.jackson.annotation.JsonBackReference
 import com.rumune.web.domain.product.entity.Product
-import jakarta.persistence.Entity
-import jakarta.persistence.Id
-import jakarta.persistence.JoinColumn
-import jakarta.persistence.ManyToOne
-import jakarta.persistence.Table
+import jakarta.persistence.*
 
 @Entity
 @Table(name ="product_post_product")
 class ProductPostProduct(
     @Id
-    val id:Long,
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    val id:Long = 0,
 
     @ManyToOne
     @JsonBackReference

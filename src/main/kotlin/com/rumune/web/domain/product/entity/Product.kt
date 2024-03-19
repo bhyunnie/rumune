@@ -16,6 +16,7 @@ class Product(
     val name:String ="",
     val price:Int =0,
     val quantityLimit: Int = 0,
+    val stock: Int = 0,
 
     @OneToMany(mappedBy = "product")
     @JsonManagedReference
