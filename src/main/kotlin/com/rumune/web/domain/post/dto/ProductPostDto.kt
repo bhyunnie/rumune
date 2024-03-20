@@ -2,8 +2,10 @@ package com.rumune.web.domain.post.dto
 
 import com.rumune.web.domain.post.entity.ProductPost
 import com.rumune.web.domain.product.entity.Product
+import java.util.UUID
 
 class ProductPostDto(
+    val uuid:UUID,
     val title:String,
     val content: String,
     val discount: Double,
@@ -17,6 +19,7 @@ class ProductPostDto(
     companion object {
         fun from (p:ProductPost):ProductPostDto {
             return ProductPostDto(
+                uuid = p.uuid,
                 title = p.title,
                 content = p.content,
                 discount = p.discount,

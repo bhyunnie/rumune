@@ -65,4 +65,9 @@ class ProductPostService(
     fun findAll(): List<ProductPost> {
         return productPostRepository.findAll()
     }
+
+    fun findPostByUUID(id:UUID): ProductPost? {
+        val post = productPostRepository.findById(id)
+        return if(post.isPresent) post.get() else null
+    }
 }
