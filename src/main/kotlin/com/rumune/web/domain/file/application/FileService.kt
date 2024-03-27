@@ -21,7 +21,7 @@ class FileService(
 
     private fun uploadToS3 (file: MultipartFile,fileKey:UUID, directory:String = ""):String {
         try {
-        if(!checkIsImage(file)) throw Exception("is not image file")
+        if(!checkIsImage(file)) throw Exception("is not file file")
         val path = if(directory == "") "" else removeSlash(directory)
         val bucketName = "${cloudProperties.aws.s3.bucket}/${path}"
         val ext = file.originalFilename?.substringAfter(".")?:throw Exception()
@@ -56,7 +56,7 @@ class FileService(
     }
 
     private fun checkIsImage (file:MultipartFile): Boolean {
-        return file.contentType in arrayOf("image/jpeg", "image/png","image/jpg", "image/webp", "image/svg+xml",
-            "image/bmp", "image/x-icon", "image/vnd.microsoft.icon")
+        return file.contentType in arrayOf("image/jpeg", "image/png","file/jpg", "image/webp", "image/svg+xml",
+            "image/bmp", "file/x-icon", "file/vnd.microsoft.icon")
     }
 }

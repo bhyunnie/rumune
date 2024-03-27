@@ -55,7 +55,8 @@ class SecurityConfig(
                     .requestMatchers(
                         "/",
                         "/api/v1/signin",
-                        "/api/v1/category"
+                        "/api/v1/category",
+                        "/api/v1/post/product"
                     ).permitAll()
                     .requestMatchers("/api/v1/admin/**").hasRole("ADMIN")
 //                    .requestMatchers("/api/**").authenticated()

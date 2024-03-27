@@ -1,9 +1,9 @@
-package com.rumune.web.domain.product.dto.response
+package com.rumune.web.domain.product.dto
 
 import com.rumune.web.domain.product.entity.Product
 import com.rumune.web.global.util.DateUtil
 
-class FindProductResponse(
+class ProductDto(
     val id: Long,
     val name:String,
     val price: Int,
@@ -17,16 +17,16 @@ class FindProductResponse(
     companion object {
         fun from (
             p:Product
-        ): FindProductResponse {
-            return FindProductResponse(
+        ): ProductDto {
+            return ProductDto(
                 id = p.id,
                 name = p.name,
                 price = p.price,
                 quantityLimit = p.quantityLimit,
                 createdAt = DateUtil().offsetDateTimeToYYYYMMDD(p.createdAt),
                 category = p.categories.map {it.name},
-                image = p.image.sortedBy { it.order }.map{it.image.fileURL},
-                thumbnail = p.image.sortedBy{ it.order }.first().image.fileURL,
+                image = p.image.sortedBy { it.order }.map{it.file.fileURL},
+                thumbnail = p.image.sortedBy{ it.order }.first().file.fileURL,
                 stock = p.stock
             )
         }

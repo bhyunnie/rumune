@@ -13,7 +13,7 @@ class ProductFileService(
     fun createProductFile(product:Product, file:File, order:Int):ProductImage {
         return productFileRepository.save(ProductImage(
             product = product,
-            image = file,
+            file = file,
             order=order
         ))
     }

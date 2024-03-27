@@ -18,7 +18,7 @@ class ProductImage(
 
     @ManyToOne
     @JoinColumn(name = "file_uuid")
-    val image: File,
+    val file: File,
 
     @Column(name ="order_num")
     var order:Int =0

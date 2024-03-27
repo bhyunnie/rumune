@@ -50,7 +50,7 @@ class ProductService(
                 val uploadedFile = fileService.createFile(file, userId, "/product")
                 fileList.add(ProductImage(
                     product = product,
-                    image = uploadedFile,
+                    file = uploadedFile,
                     order = i
                 ))
                 productFileService.createProductFile(product, uploadedFile, i)
@@ -70,6 +70,22 @@ class ProductService(
             return productRepository.findAll()
         } catch (e: Exception) {
             throw Exception("상품 api 관련 에러")
+        }
+    }
+
+    fun findProduct(productId:Long):List<Product> {
+        try {
+            return listOf(productRepository.findOne(productId))
+        } catch (e:Exception) {
+            throw Exception("상품을 불러오는데 실패했습니다.")
+        }
+    }
+
+    fun findProductList(productIdList:List<Long>): List<Product> {
+        try {
+            return productRepository.findProductList(productIdList)
+        } catch (e:Exception) {
+            throw Exception("상품을 불러오는데 실패했습니다.")
         }
     }
 }

@@ -15,6 +15,7 @@ class ProductPostDto(
     val createdBy: String,
     val images: List<String>,
     val products: List<Product>,
+    val createdAt: String,
     ) {
     companion object {
         fun from (p:ProductPost):ProductPostDto {
@@ -28,7 +29,8 @@ class ProductPostDto(
                 thumbnailURL = p.thumbnailURL,
                 createdBy = p.createdBy.name,
                 images = if(p.image.isEmpty()) listOf() else p.image.map{it.file.fileURL},
-                products = if(p.products.isEmpty()) listOf() else p.products.map{it.product}
+                products = if(p.products.isEmpty()) listOf() else p.products.map{it.product},
+                createdAt = p.createdAt.toString()
             )
         }
     }
