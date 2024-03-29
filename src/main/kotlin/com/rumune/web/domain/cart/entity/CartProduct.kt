@@ -9,14 +9,14 @@ import jakarta.persistence.*
 class CartProduct(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    val id:Long,
+    val id:Long = 0,
 
     @ManyToOne
     @JoinColumn(name="cart_id")
     @JsonBackReference
     val cart:Cart,
 
-    val count:Int,
+    val count:Long,
 
     @ManyToOne
     @JoinColumn(name="product_id")

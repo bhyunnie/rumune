@@ -1,5 +1,7 @@
 package com.rumune.web.domain.user.application
 
+import com.rumune.web.domain.cart.entity.Cart
+import com.rumune.web.domain.cart.repository.CartRepository
 import com.rumune.web.domain.user.entity.*
 import com.rumune.web.domain.user.repository.UserRepository
 import com.rumune.web.global.exception.OAuth2AlreadyExistException
@@ -14,7 +16,8 @@ import org.springframework.stereotype.Component
 @Component
 class CustomOAuth2UserService(
     private val userService: UserService,
-    private val userRepository: UserRepository
+    private val userRepository: UserRepository,
+    private val cartRepository: CartRepository,
 ): DefaultOAuth2UserService() {
     @Override
     override fun loadUser(request: OAuth2UserRequest):OAuth2User {
@@ -35,7 +38,7 @@ class CustomOAuth2UserService(
         val foundUserList = userService.findUserByEmail(userInfo.getEmail())
         val authorities:Set<SimpleGrantedAuthority>
         if (foundUserList.isEmpty()) {
-            userRepository.save(
+            val user = userRepository.save(
                 User(
                     provider = userInfo.getProvider(),
                     email = userInfo.getEmail(),
@@ -44,6 +47,9 @@ class CustomOAuth2UserService(
                     providerId = userInfo.getId(),
                     name = userInfo.getName()
                 )
+            )
+            cartRepository.save(
+                Cart(user = user)
             )
             userService.addAuthority(userInfo.getEmail(),"ROLE_USER")
             authorities = HashSet(listOf(SimpleGrantedAuthority("ROLE_USER")))
