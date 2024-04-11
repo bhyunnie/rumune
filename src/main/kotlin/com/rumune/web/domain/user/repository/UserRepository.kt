@@ -6,7 +6,7 @@ import org.springframework.stereotype.Repository
 import java.util.Optional
 
 interface UserRepository: JpaRepository<User,Long> {
-    fun findByUserId(userId:Long):List<User>
+    override fun findById(id:Long): Optional<User>
     fun findByEmail(email:String):List<User>
     fun findByProviderId(providerId:String):List<User>
 }

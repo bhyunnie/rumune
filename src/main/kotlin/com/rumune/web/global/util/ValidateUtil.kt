@@ -23,6 +23,6 @@ class ValidateUtil(
     fun extractUserIdFromBearerToken(request:HttpServletRequest):Long {
         val email = extractEmailFromBearerToken(request)
         val user = userService.findUserByEmail(email)
-        return user[0].userId
+        return user[0].id
     }
 }

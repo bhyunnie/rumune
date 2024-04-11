@@ -21,9 +21,9 @@ import org.springframework.security.core.userdetails.UserDetails
 @Table(name="users")
 class User (
     @Id
-    @Column(name = "user_id", unique = true)
+    @Column(name = "id", unique = true)
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    val userId: Long = 0,
+    val id: Long = 0,
 
     @Column(name = "email", unique = true, nullable = false)
     val email: String,
@@ -52,7 +52,7 @@ class User (
 ):BaseEntity<Long>(),UserDetails {
     @Override
     override fun getId(): Long {
-        return userId
+        return id
     }
 
     @Override

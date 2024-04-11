@@ -4,7 +4,7 @@ import com.rumune.web.domain.user.entity.Authority
 import com.rumune.web.domain.user.entity.User
 
 data class UserDto(
-    var userId: Long,
+    var id: Long,
     var email: String,
     var createdAt: String,
     var provider: String,
@@ -17,7 +17,7 @@ data class UserDto(
     companion object {
         fun from(user: User): UserDto {
             return UserDto(
-                userId = user.userId,
+                id = user.id,
                 email = user.email,
                 createdAt = user.createdAt.toString(),
                 provider = user.provider,

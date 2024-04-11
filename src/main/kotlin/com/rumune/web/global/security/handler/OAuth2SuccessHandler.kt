@@ -40,13 +40,13 @@ class OAuth2SuccessHandler(
     }
 
     private fun saveRefreshToken(user: User, newRefreshToken: String) {
-        val refreshToken = jwtService.findJwt(user.userId)
+        val refreshToken = jwtService.findJwt(user.id)
         val jsonWebToken:JsonWebToken
         if(refreshToken.isNotEmpty()) {
             jsonWebToken = refreshToken[0]
             jsonWebToken.jwt = newRefreshToken
         } else {
-            jsonWebToken = JsonWebToken(userId = user.userId, jwt = newRefreshToken)
+            jsonWebToken = JsonWebToken(userId = user.id, jwt = newRefreshToken)
         }
         jwtService.save(jsonWebToken)
     }

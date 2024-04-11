@@ -26,8 +26,8 @@ class ProductPostService(
         thumbnail:MultipartFile, title:String, discount:Int, deliveryFee:Int,
         productIdList:List<Long>, content: String, userId:Long, domain:String,postImageURLList:List<String>):ProductPost {
         val postUUID = UUID.randomUUID()
-        val user = userRepository.findByUserId(userId)
-        val file = fileService.createFile(thumbnail,user[0].userId,"/product_post")
+        val user = userRepository.findById(userId)
+        val file = fileService.createFile(thumbnail,user.get().id,"/product_post")
         val fileUUIDList = postImageURLList.map{productImageURL -> productImageURL.split("/").last().split(".").first()}
 
         val post = productPostRepository.save(
@@ -38,7 +38,7 @@ class ProductPostService(
                 discount = discount.toDouble(),
                 deliveryFee = deliveryFee,
                 isPosted = true,
-                createdBy = user[0],
+                createdBy = user.get(),
                 thumbnailURL = file.fileURL,
             )
         )

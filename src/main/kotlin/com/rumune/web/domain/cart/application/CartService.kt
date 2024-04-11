@@ -21,7 +21,7 @@ class CartService(
         var cart = cartRepository.findByUserId(userId)
         val cartProductEntityList = mutableListOf<CartProduct>()
         if(cart.isEmpty()) {
-             cart = listOf(cartRepository.save(Cart(user = userRepository.findByUserId(userId)[0])))
+             cart = listOf(cartRepository.save(Cart(user = userRepository.findById(userId).get())))
         }
         if (cart[0].product.isNotEmpty()) {
             cart[0].product.forEach {

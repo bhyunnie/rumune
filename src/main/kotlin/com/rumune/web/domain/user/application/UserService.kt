@@ -40,7 +40,7 @@ class UserService(
     }
 
     fun findUserById(userId:Long): List<User> {
-        return userRepository.findByUserId(userId)
+        return listOf(userRepository.findById(userId).get())
     }
 
     fun findUserByEmail(email:String): List<User> {
@@ -59,7 +59,7 @@ class UserService(
         val userList = userRepository.findByEmail(email)
         if (userList.isNotEmpty()) {
             val user = userList[0]
-            return user.authorities.contains(Authority(userId = user.userId, name = authority))
+            return user.authorities.contains(Authority(userId = user.id, name = authority))
         } else {
             return false
         }
@@ -70,7 +70,7 @@ class UserService(
             val userList = userRepository.findByEmail(email)
             if (userList.isNotEmpty()) {
                 val user = userList[0]
-                val newRole = Authority(user.userId, authority)
+                val newRole = Authority(user.id, authority)
                 if (!user.authorities.contains(newRole)) {
                     user.authorities.add(newRole)
                     userRepository.save(user)
@@ -87,7 +87,7 @@ class UserService(
         val userList = userRepository.findByEmail(email)
         if (userList.isNotEmpty()) {
             val user = userList[0]
-            val newRole = Authority(user.userId, authority)
+            val newRole = Authority(user.id, authority)
             if (user.authorities.contains(newRole)) {
                 user.authorities.remove(newRole)
                 userRepository.save(user)
@@ -110,9 +110,9 @@ class UserService(
         val accessToken = jwtService.generateAccessToken(user.email)
         val refreshToken = jwtService.generateRefreshToken(user.email)
 
-        val refreshTokenList = refreshTokenRepository.findByUserId(user.userId)
+        val refreshTokenList = refreshTokenRepository.findByUserId(user.id)
         if (refreshTokenList.isEmpty()) {
-            refreshTokenRepository.save(JsonWebToken(jwt=refreshToken, userId = user.userId))
+            refreshTokenRepository.save(JsonWebToken(jwt=refreshToken, userId = user.id))
         } else {
             val savedRefreshToken = refreshTokenList[0]
             savedRefreshToken.jwt = refreshToken
