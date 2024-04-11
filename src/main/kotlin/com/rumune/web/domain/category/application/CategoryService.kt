@@ -11,7 +11,7 @@ class CategoryService(
 ) {
     fun createCategory(categoryName:String, englishName:String):Boolean {
         try {
-            categoryRepository.save(Category(name=categoryName, englishName = englishName))
+            categoryRepository.save(Category(name=categoryName))
             return true
         } catch (e:Exception) {
             throw CategoryException("카테고리 생성 중 에러가 발생했습니다.")

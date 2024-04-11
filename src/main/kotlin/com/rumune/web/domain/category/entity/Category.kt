@@ -11,8 +11,5 @@ class Category(
 
     @Column(name="name", nullable = false, unique = true)
     val name: String = "",
-
-    @Column(name="english_name", nullable = false, unique = true)
-    val englishName: String = "",
 ) {
 }
