@@ -13,7 +13,7 @@ class ProductPostProduct(
 
     @ManyToOne
     @JsonBackReference
-    @JoinColumn(name="product_post_uuid")
+    @JoinColumn(name="product_post_id")
     val productPost: ProductPost,
 
     @ManyToOne
