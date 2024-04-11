@@ -16,7 +16,7 @@ class CartProduct(
     @JsonBackReference
     val cart:Cart,
 
-    val count:Long,
+    var count:Long,
 
     @ManyToOne
     @JoinColumn(name="product_id")

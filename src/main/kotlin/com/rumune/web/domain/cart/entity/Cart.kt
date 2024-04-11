@@ -16,6 +16,6 @@ class Cart(
 
     @OneToMany(mappedBy = "cart")
     @JsonManagedReference
-    val product:List<CartProduct>? = null,
+    val product:List<CartProduct> = listOf(),
 ) {
 }

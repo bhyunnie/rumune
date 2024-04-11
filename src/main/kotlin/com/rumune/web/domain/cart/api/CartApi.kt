@@ -4,6 +4,7 @@ import com.rumune.web.domain.cart.application.CartService
 import com.rumune.web.domain.cart.dto.CartDto
 import com.rumune.web.domain.cart.dto.request.AddProductToCartRequest
 import com.rumune.web.domain.cart.dto.response.FindCartResponse
+import com.rumune.web.domain.cart.entity.CartProduct
 import com.rumune.web.domain.product.application.ProductService
 import com.rumune.web.domain.product.entity.Product
 import com.rumune.web.global.enum.Responses
@@ -24,10 +25,12 @@ class CartApi(
 ) {
     // Create
     @PostMapping("/api/v1/cart")
-    fun addProductToCart(@RequestBody request:AddProductToCartRequest ,hsr:HttpServletRequest):ResponseEntity<String> {
+    fun addProductToCart(@RequestBody request:AddProductToCartRequest ,hsr:HttpServletRequest):ResponseEntity<List<CartProduct>> {
         val userId = validateUtil.extractUserIdFromBearerToken(hsr)
         val result = cartService.addProductToCart(userId, request.productList)
-        return ResponseEntity.ok().body("${request.productList.size}")
+        return ResponseEntity.ok().body(
+            result
+        )
     }
 
     //Read
