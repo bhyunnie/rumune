@@ -2,7 +2,9 @@ package com.rumune.web.domain.cart.api
 
 import com.rumune.web.domain.cart.application.CartService
 import com.rumune.web.domain.cart.dto.CartDto
+import com.rumune.web.domain.cart.dto.CartProductDto
 import com.rumune.web.domain.cart.dto.request.AddProductToCartRequest
+import com.rumune.web.domain.cart.dto.response.AddProductToCartResponse
 import com.rumune.web.domain.cart.dto.response.FindCartResponse
 import com.rumune.web.domain.cart.entity.CartProduct
 import com.rumune.web.domain.product.application.ProductService
@@ -24,19 +26,27 @@ class CartApi(
     private val cartService: CartService
 ) {
     // Create
+
+    /**
+     * 카트에 상품 담기 (다건)
+     */
     @PostMapping("/api/v1/cart")
-    fun addProductToCart(@RequestBody request:AddProductToCartRequest ,hsr:HttpServletRequest):ResponseEntity<List<CartProduct>> {
+    fun addProductToCart(@RequestBody request:AddProductToCartRequest ,hsr:HttpServletRequest):ResponseEntity<AddProductToCartResponse> {
         val userId = validateUtil.extractUserIdFromBearerToken(hsr)
         val result = cartService.addProductToCart(userId, request.productList)
         return ResponseEntity.ok().body(
-            result
+            AddProductToCartResponse(
+                message = "상품 추가 완료",
+                status = Responses.OK,
+                result = result.map{CartProductDto.from(it)}
+            )
         )
     }
 
     //Read
 
     /**
-     * list - 로그인 이전 장바구니 추가 목록
+     * list - 로그인 이전 카트 목록
      */
     @GetMapping("/api/v1/cart")
     fun findUserCart (@RequestParam list:String?,hsr:HttpServletRequest): ResponseEntity<FindCartResponse>{
@@ -49,13 +59,8 @@ class CartApi(
             FindCartResponse(
                 message = "카트 조회 완료",
                 status = Responses.OK,
-                result = CartDto.from(productListByCart[0])
+                result = productListByCart
             )
         )
     }
-
-//    @PostMapping("/api/v1/cart")
-//    fun findGuestCart (): ResponseEntity<String> {
-//        return ResponseEntity.ok().body("guest cart")
-//    }
 }

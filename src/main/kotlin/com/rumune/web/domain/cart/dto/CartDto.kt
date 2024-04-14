@@ -9,7 +9,7 @@ class CartDto(
     companion object {
         fun from (c:Cart):CartDto {
             return CartDto(
-                productList = if (c.product == null) null else c.product.map{
+                productList = if (c.product.isEmpty()) null else c.product.map{
                     ProductWithCountDto.from(
                         c = it.count,
                         p = it.product
