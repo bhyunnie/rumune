@@ -25,10 +25,8 @@ class CartApi(
     private val productService: ProductService,
     private val cartService: CartService
 ) {
-    // Create
-
     /**
-     * 카트에 상품 담기 (다건)
+     * 카트에 상품 담기 (Insert, 다건)
      */
     @PostMapping("/api/v1/cart")
     fun addProductToCart(@RequestBody request:AddProductToCartRequest ,hsr:HttpServletRequest):ResponseEntity<AddProductToCartResponse> {
@@ -38,15 +36,13 @@ class CartApi(
             AddProductToCartResponse(
                 message = "상품 추가 완료",
                 status = Responses.OK,
-                result = result.map{CartProductDto.from(it)}
+                result = result.map { CartProductDto.from(it) }
             )
         )
     }
 
-    //Read
-
     /**
-     * list - 로그인 이전 카트 목록
+     * 카트 조회 (Select, 단건)
      */
     @GetMapping("/api/v1/cart")
     fun findUserCart (@RequestParam list:String?,hsr:HttpServletRequest): ResponseEntity<FindCartResponse>{

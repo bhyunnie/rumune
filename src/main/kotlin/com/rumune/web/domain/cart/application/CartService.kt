@@ -20,7 +20,7 @@ class CartService(
 ) {
 
     /**
-     * 카트에 상품 담기 (다건)
+     * 카트에 상품 담기
      */
     fun addProductToCart(userId:Long, productList:List<AddProductToCartRequestProduct>):List<CartProduct> {
         val productMap = productList.associateWith { it.count }.mapKeys { it.key.id }.toMutableMap()
