@@ -36,7 +36,7 @@ class CartApi(
             AddProductToCartResponse(
                 message = "상품 추가 완료",
                 status = Responses.OK,
-                result = result.map { CartProductDto.from(it) }
+                result = result
             )
         )
     }

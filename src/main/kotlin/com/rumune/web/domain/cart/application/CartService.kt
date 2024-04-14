@@ -2,6 +2,7 @@ package com.rumune.web.domain.cart.application
 
 import com.amazonaws.services.kms.model.NotFoundException
 import com.rumune.web.domain.cart.dto.CartDto
+import com.rumune.web.domain.cart.dto.CartProductDto
 import com.rumune.web.domain.cart.dto.request.AddProductToCartRequestProduct
 import com.rumune.web.domain.cart.entity.Cart
 import com.rumune.web.domain.cart.entity.CartProduct
@@ -22,7 +23,7 @@ class CartService(
     /**
      * 카트에 상품 담기
      */
-    fun addProductToCart(userId:Long, productList:List<AddProductToCartRequestProduct>):List<CartProduct> {
+    fun addProductToCart(userId:Long, productList:List<AddProductToCartRequestProduct>):List<CartProductDto> {
         val productMap = productList.associateWith { it.count }.mapKeys { it.key.id }.toMutableMap()
         val cartOptional = cartRepository.findByUserId(userId)
         val cartProductEntityList = mutableListOf<CartProduct>()
@@ -44,7 +45,7 @@ class CartService(
         }
         val result = cartProductRepository.saveAll(cartProductEntityList)
 
-        return result
+        return result.map{ CartProductDto.from(it) }
     }
 
     /**

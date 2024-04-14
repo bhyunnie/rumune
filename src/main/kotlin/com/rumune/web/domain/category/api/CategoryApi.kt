@@ -14,10 +14,12 @@ import org.springframework.web.bind.annotation.RestController
 class CategoryApi(
     private val categoryService: CategoryService,
 ) {
-    // Create
+    /**
+     * 카테고리 생성 (단건)
+     */
     @PostMapping("/admin/api/v1/category")
-    fun createCategory(@RequestParam categoryName:String, @RequestParam englishName:String):ResponseEntity<CreateCategoryResponse> {
-        val result = categoryService.createCategory(categoryName, englishName)
+    fun createCategory(@RequestParam categoryName:String):ResponseEntity<CreateCategoryResponse> {
+        val result = categoryService.createCategory(categoryName)
         return ResponseEntity.ok(
             CreateCategoryResponse(
                 message = "카테고리 추가 완료",
@@ -26,7 +28,10 @@ class CategoryApi(
             )
         )
     }
-    // Read
+
+    /**
+     * 카테고리 조회 (다건)
+     */
     @GetMapping("/api/v1/category")
     fun findAllCategory():ResponseEntity<CategoryResponse> {
         val result = categoryService.findAllCategory()
@@ -38,6 +43,4 @@ class CategoryApi(
             )
         )
     }
-    // Update
-    // Delete
 }
