@@ -1,6 +1,6 @@
 package com.rumune.web.domain.file.dto.request
 
-import com.rumune.web.domain.file.dto.Domain
+import com.rumune.web.domain.file.enum.Domain
 import org.springframework.web.multipart.MultipartFile
 
 class UploadImageFileRequest(
