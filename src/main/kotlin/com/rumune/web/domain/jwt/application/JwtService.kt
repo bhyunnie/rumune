@@ -1,5 +1,7 @@
 package com.rumune.web.domain.jwt.application
 
+import com.amazonaws.services.kms.model.NotFoundException
+import com.rumune.web.domain.jwt.dto.JsonWebTokenDto
 import com.rumune.web.domain.jwt.entity.JsonWebToken
 import com.rumune.web.domain.jwt.repository.JwtRepository
 import com.rumune.web.domain.user.application.UserService
@@ -22,13 +24,16 @@ class JwtService(
     private val accessTokenExpirationDuration = jwtProperties.accessTokenExpireDuration
     private val refreshTokenExpirationDuration = jwtProperties.refreshTokenExpireDuration
 
+    /**
+     * access token 갱신
+     */
     fun refreshAccessToken(token:String):Map<String,String> {
         val email = getEmailOfToken(token)
         val user = userRepository.findByEmail(email)
         if (user.isEmpty()) throw Exception("유저 정보가 없습니다.")
         val isVerified =  validRefreshToken(token,user[0], email)
         if(isVerified) {
-            val oldToken = jwtRepository.findByJwt(token)[0]
+            val oldToken = jwtRepository.findByJwt(token).get()
             val accessToken = generateAccessToken(email)
             val refreshToken = generateRefreshToken(email)
             oldToken.jwt = refreshToken
@@ -38,51 +43,54 @@ class JwtService(
         return mapOf()
     }
 
+    /**
+     * access token 생성
+     */
     fun generateAccessToken(email: String, additionalClaims: Map<String,Any> = emptyMap()):String {
-        return Jwts.builder()
-            .header()
-            .type("JWT")
-            .and()
-            .claims()
-            .subject(email)
-            .issuer(jwtProperties.issuer)
-            .issuedAt(Date(System.currentTimeMillis()))
+        return Jwts.builder().header().type("JWT").and().claims()
+            .subject(email).issuer(jwtProperties.issuer).issuedAt(Date(System.currentTimeMillis()))
             .expiration(Date(System.currentTimeMillis() + accessTokenExpirationDuration))
-            .add(additionalClaims)
-            .and()
-            .signWith(secretKey)
-            .compact()
+            .add(additionalClaims).and().signWith(secretKey).compact()
     }
-
+    /**
+     * refresh token 생성
+     */
     fun generateRefreshToken(email: String, additionalClaims: Map<String,Any> = emptyMap()):String {
-        return Jwts.builder()
-            .header()
-            .and()
-            .claims()
-            .subject(email)
-            .issuer(jwtProperties.issuer)
-            .issuedAt(Date(System.currentTimeMillis()))
+        return Jwts.builder().header().and().claims().subject(email)
+            .issuer(jwtProperties.issuer).issuedAt(Date(System.currentTimeMillis()))
             .expiration(Date(System.currentTimeMillis() + refreshTokenExpirationDuration))
-            .add(additionalClaims)
-            .and()
-            .signWith(secretKey)
-            .compact()
+            .add(additionalClaims).and().signWith(secretKey).compact()
     }
-
+    /**
+     * token 검증
+     */
     fun validToken(token:String, user:User, email:String):Boolean {
         return user.email == email && !isExpired(token)
     }
-
+    /**
+     * refresh token 검증
+     */
     fun validRefreshToken(token:String, user:User, email:String):Boolean {
-        return jwtRepository.findByJwt(token).isNotEmpty() && user.email == email && !isExpired(token)
+        return !(jwtRepository.findByJwt(token).isEmpty) && user.email == email && !isExpired(token)
     }
 
+    /**
+     * token 만료 검증
+     */
     fun isExpired(token: String): Boolean {
         return getAllClaims(token).expiration.before(Date(System.currentTimeMillis()))
     }
+
+    /**
+     * token 내의 claims 조회
+     */
     private fun getAllClaims(token:String): Claims {
         return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).payload
     }
+
+    /**
+     * token 내의 email 조회
+     */
     fun getEmailOfToken(token: String):String {
         val email = getAllClaims(token).subject
         if (email != null) {
@@ -94,7 +102,24 @@ class JwtService(
     fun save(jsonWebToken: JsonWebToken): JsonWebToken {
         return jwtRepository.save(jsonWebToken)
     }
-    fun findJwt(userId:Long): List<JsonWebToken> {
-        return jwtRepository.findByUserId(userId)
+
+    /**
+     * 토큰 갱신
+     */
+    fun updateJwt(userId:Long, jsonWebToken: String): JsonWebTokenDto {
+        try {
+            val jwtOptional = jwtRepository.findByUserId(userId)
+            val result: JsonWebToken
+            if (jwtOptional.isEmpty) {
+                result = jwtRepository.save(JsonWebToken(userId=userId,jwt=jsonWebToken))
+            } else {
+                val jwt = jwtOptional.get()
+                jwt.jwt = jsonWebToken
+                result = jwtRepository.save(jwt)
+            }
+            return JsonWebTokenDto.from(result)
+        } catch(e: Exception) {
+            throw Exception("토큰 갱신 중 에러가 발생했습니다")
+        }
     }
 }

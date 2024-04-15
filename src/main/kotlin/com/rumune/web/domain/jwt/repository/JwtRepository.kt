@@ -5,6 +5,6 @@ import org.springframework.data.jpa.repository.JpaRepository
 import java.util.Optional
 
 interface JwtRepository: JpaRepository<JsonWebToken, Long> {
-    fun findByUserId(userId:Long): List<JsonWebToken>
-    fun findByJwt(refreshToken: String): List<JsonWebToken>
+    fun findByUserId(userId:Long): Optional<JsonWebToken>
+    fun findByJwt(refreshToken: String): Optional<JsonWebToken>
 }

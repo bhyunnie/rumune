@@ -31,23 +31,10 @@ class OAuth2SuccessHandler(
         val refreshToken = jwtService.generateRefreshToken(user.email)
         val accessTokenCookie = cookieUtil.createAccessTokenCookie(accessToken)
         val refreshTokenCookie = cookieUtil.createRefreshTokenCookie(refreshToken)
-
-        saveRefreshToken(user, refreshToken)
+        jwtService.updateJwt(user.id, refreshToken)
 
         response.addCookie(accessTokenCookie)
         response.addCookie(refreshTokenCookie)
         response.sendRedirect("http://localhost:3000")
-    }
-
-    private fun saveRefreshToken(user: User, newRefreshToken: String) {
-        val refreshToken = jwtService.findJwt(user.id)
-        val jsonWebToken:JsonWebToken
-        if(refreshToken.isNotEmpty()) {
-            jsonWebToken = refreshToken[0]
-            jsonWebToken.jwt = newRefreshToken
-        } else {
-            jsonWebToken = JsonWebToken(userId = user.id, jwt = newRefreshToken)
-        }
-        jwtService.save(jsonWebToken)
     }
 }

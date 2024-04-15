@@ -19,6 +19,7 @@ class ProductPost(
     val discount: Double,
     val deliveryFee: Int,
     val isPosted: Boolean = false,
+    @Column(name="thumbnail_url")
     val thumbnailURL: String = "",
 
     @ManyToOne(fetch = FetchType.LAZY)
