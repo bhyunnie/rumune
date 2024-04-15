@@ -110,11 +110,11 @@ class UserService(
         val accessToken = jwtService.generateAccessToken(user.email)
         val refreshToken = jwtService.generateRefreshToken(user.email)
 
-        val refreshTokenList = refreshTokenRepository.findByUserId(user.id)
-        if (refreshTokenList.isEmpty()) {
+        val refreshTokenOptional = refreshTokenRepository.findByUserId(user.id)
+        if (refreshTokenOptional.isEmpty) {
             refreshTokenRepository.save(JsonWebToken(jwt=refreshToken, userId = user.id))
         } else {
-            val savedRefreshToken = refreshTokenList[0]
+            val savedRefreshToken = refreshTokenOptional.get()
             savedRefreshToken.jwt = refreshToken
             refreshTokenRepository.save(savedRefreshToken)
         }
