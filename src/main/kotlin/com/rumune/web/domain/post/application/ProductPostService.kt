@@ -23,6 +23,9 @@ class ProductPostService(
     private val productPostProductRepository: ProductPostProductRepository,
     private val productPostFileRepository: ProductPostFileRepository
 ) {
+    /**
+     * 상품 게시글 작성
+     */
     fun createProductPost(
         thumbnail:MultipartFile, title:String, discount:Int, deliveryFee:Int,
         productIdList:List<Long>, content: String, userId:Long, domain:String,postImageURLList:List<String>):ProductPost {
@@ -58,12 +61,18 @@ class ProductPostService(
         return post
     }
 
+    /**
+     * 전체 상품 게시글 조회 (다건)
+     */
     fun findAll(): List<ProductPost> {
         val postList = productPostRepository.findAll()
         if(postList.isEmpty()) throw NotFoundException("게시글이 없습니다.")
         return postList
     }
 
+    /**
+     * 상품 게시글 조회 (단건)
+     */
     fun findPostByUUID(id:UUID): ProductPost {
         val postOptional = productPostRepository.findById(id)
         if (postOptional.isEmpty) throw NotFoundException("게시글을 찾을 수 없습니다.")

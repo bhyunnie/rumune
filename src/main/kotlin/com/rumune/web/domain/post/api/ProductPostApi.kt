@@ -44,7 +44,7 @@ class ProductPostApi(
         )
     }
     /**
-     * 전체 게시글 조회
+     * 전체 게시글 조회 (다건)
      * TODO: 페이지네이션 필요
      */
     @GetMapping("/api/v1/post/product")
