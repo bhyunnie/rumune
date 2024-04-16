@@ -4,10 +4,10 @@ import com.rumune.web.domain.common.dto.CommonResponse
 import com.rumune.web.domain.product.dto.ProductDto
 import com.rumune.web.global.enum.Responses
 
-class ProductResponse(
+class ProductListResponse(
     override val message: String,
     override val status: Responses,
-    override val result: ProductDto
-):CommonResponse<ProductDto> {
+    override val result: List<ProductDto>
+):CommonResponse<List<ProductDto>> {
 
 }

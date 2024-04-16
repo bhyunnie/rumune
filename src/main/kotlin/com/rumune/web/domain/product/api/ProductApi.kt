@@ -4,101 +4,60 @@ import com.rumune.web.global.enum.Responses
 import com.rumune.web.domain.product.application.ProductService
 import com.rumune.web.domain.product.dto.request.CreateProductRequest
 import com.rumune.web.domain.product.dto.ProductDto
+import com.rumune.web.domain.product.dto.response.ProductListResponse
 import com.rumune.web.domain.product.dto.response.ProductResponse
 import com.rumune.web.global.enum.Scope
 import jakarta.servlet.http.HttpServletRequest
 import org.springframework.http.ResponseEntity
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.ModelAttribute
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.RequestParam
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
 
 @RestController
 class ProductApi(
     private val productService: ProductService,
 ) {
-    // Create
+    /**
+     * 상품 등록 (단건)
+     */
     @PostMapping("/admin/api/v1/product")
     fun createProduct(@ModelAttribute request: CreateProductRequest, hsr:HttpServletRequest): ResponseEntity<ProductResponse> {
         val product = productService.registProduct(request,hsr)
         return ResponseEntity.ok(
-            ProductResponse(
-                message = "상품 등록 완료",
-                status = Responses.OK,
-                result = listOf(
-                    ProductDto.from(product)
-                )
-            )
+            ProductResponse(message = "상품 등록 완료", status = Responses.OK, result = ProductDto.from(product))
         )
     }
-
-    // Read
+    /**
+     * 전체 상품 조회 (다건)
+     */
     @GetMapping("/api/v1/product/all")
-    fun findAllProduct():ResponseEntity<ProductResponse> {
+    fun findAllProduct():ResponseEntity<ProductListResponse> {
         val result = productService.findAllProduct()
         return ResponseEntity.ok(
-            ProductResponse(
+            ProductListResponse(
                 message = "전체 상품 조회 성공",
                 status = Responses.OK,
                 result = result.map{ ProductDto.from(it) }
             )
         )
     }
-
-    @GetMapping("/api/v1/product")
-    fun findProduct(
-        @RequestParam scope:Scope,
-        @RequestParam(required = false, defaultValue = "") list:String?):ResponseEntity<ProductResponse?> {
-        var productIdList:List<Long> = listOf()
-
-        if(list == null && scope != Scope.ALL) return validateFailResponse
-        else if (list != null) productIdList = list.split(",").map{it.toLong()}
-
-        when(scope) {
-            Scope.ALL -> return ResponseEntity.ok().body(null)
-            Scope.LIST -> {
-                val productList = productService.findProductList(productIdList)
-                if (productList.isEmpty()) return notFoundResponse
-                return ResponseEntity.ok().body(ProductResponse(
-                    message = "상품 조회 완료",
-                    status = Responses.OK,
-                    result = productList.map{
-                        ProductDto.from(it)
-                    })
-                )
-            }
-            Scope.SINGLE -> {
-                val productList = productService.findProduct(productIdList[0])
-                if (productList.isEmpty()) return notFoundResponse
-                return ResponseEntity.ok().body(ProductResponse(
-                    message = "상품 조회 완료",
-                    status = Responses.OK,
-                    result = productList.map{
-                        ProductDto.from(it)
-                    })
-                )
-            }
-        }
+    /**
+     * 상품 조회 (다건)
+     */
+    @GetMapping("/api/v1/product/list")
+    fun findProductList(@RequestParam(required = true) list:String):ResponseEntity<ProductListResponse> {
+        val productIdList = list.split(",").map{it.toLong()}
+        val productList = productService.findProductList(productIdList)
+        return ResponseEntity.ok()
+            .body(ProductListResponse("상품 조회 완료",Responses.OK,productList.map{ProductDto.from(it)}))
     }
-
-    // Update
-    // Delete
-
-    // Responses
-    val notFoundResponse = ResponseEntity.ok().body(
-        ProductResponse(
-            message = "상품을 찾을 수 없습니다.",
-            status = Responses.NOT_FOUND,
-            result = listOf()
-        )
-    )
-
-    val validateFailResponse = ResponseEntity.ok().body(
-        ProductResponse(
-            message = "입력 값이 잘못되었습니다.",
-            status = Responses.ERROR,
-            result = listOf()
-        )
-    )
+    /**
+     * 상품 조회 (단건)
+     */
+    @GetMapping("/api/v1/product/{id}")
+    fun findProduct(
+        @PathVariable id: String
+    ):ResponseEntity<ProductResponse> {
+        val product = productService.findProduct(id.toLong())
+        return ResponseEntity.ok()
+            .body(ProductResponse("상품 조회 완료",Responses.OK, ProductDto.from(product)))
+    }
 }
