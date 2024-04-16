@@ -1,5 +1,6 @@
 package com.rumune.web.domain.post.application
 
+import com.amazonaws.services.kms.model.NotFoundException
 import com.rumune.web.domain.file.application.FileService
 import com.rumune.web.domain.file.entity.File
 import com.rumune.web.domain.post.entity.ProductPost
@@ -29,7 +30,6 @@ class ProductPostService(
         val user = userRepository.findById(userId)
         val file = fileService.createFile(thumbnail,user.get().id,"/product_post")
         val fileUUIDList = postImageURLList.map{productImageURL -> productImageURL.split("/").last().split(".").first()}
-
         val post = productPostRepository.save(
             ProductPost(
                 uuid = postUUID,
@@ -42,11 +42,9 @@ class ProductPostService(
                 thumbnailURL = file.fileURL,
             )
         )
-
         val products = productIdList.map{productId ->
             productPostProductRepository.save(ProductPostProduct(product=Product(productId), productPost = post))
         }
-
         val files = fileUUIDList.mapIndexed{index,fileUUID ->
             productPostFileRepository.save(ProductPostFile(
                 productPost = post,
@@ -55,19 +53,20 @@ class ProductPostService(
                 isUse = true
             ))
         }
-
         post.products = products
         post.image = files
-
         return post
     }
 
     fun findAll(): List<ProductPost> {
-        return productPostRepository.findAll()
+        val postList = productPostRepository.findAll()
+        if(postList.isEmpty()) throw NotFoundException("게시글이 없습니다.")
+        return postList
     }
 
-    fun findPostByUUID(id:UUID): ProductPost? {
-        val post = productPostRepository.findById(id)
-        return if(post.isPresent) post.get() else null
+    fun findPostByUUID(id:UUID): ProductPost {
+        val postOptional = productPostRepository.findById(id)
+        if (postOptional.isEmpty) throw NotFoundException("게시글을 찾을 수 없습니다.")
+        return postOptional.get()
     }
 }

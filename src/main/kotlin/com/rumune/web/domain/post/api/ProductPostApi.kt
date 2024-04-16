@@ -3,6 +3,7 @@ package com.rumune.web.domain.post.api
 import com.rumune.web.domain.post.application.ProductPostService
 import com.rumune.web.domain.post.dto.ProductPostDto
 import com.rumune.web.domain.post.dto.request.CreateProductPostRequest
+import com.rumune.web.domain.post.dto.response.CreateProductPostResponse
 import com.rumune.web.domain.post.dto.response.FindAllProductPostResponse
 import com.rumune.web.domain.post.dto.response.FindProductPostResponse
 import com.rumune.web.global.enum.Responses
@@ -22,28 +23,30 @@ class ProductPostApi(
     private val validateUtil: ValidateUtil,
     private val productPostService: ProductPostService
 ) {
-    // Create
+    /**
+     * 상품 게시글 작성
+     */
     @PostMapping("/admin/api/v1/post/product")
-    fun createProductPost(@ModelAttribute request:CreateProductPostRequest,hsr:HttpServletRequest):ResponseEntity<String> {
+    fun createProductPost(@ModelAttribute request:CreateProductPostRequest,hsr:HttpServletRequest):ResponseEntity<CreateProductPostResponse> {
         val userId = validateUtil.extractUserIdFromBearerToken(hsr)
         val (thumbnail,title,discount,deliveryFee,productList,content,domain,postImageURLList) = request
-
         val productPost = productPostService.createProductPost(
-            thumbnail = thumbnail,
-            title = title,
-            discount= discount,
-            deliveryFee = deliveryFee,
-            productIdList = productList,
-            content = content,
-            userId = userId,
-            domain = domain,
-            postImageURLList = postImageURLList
+            thumbnail = thumbnail, title = title, discount= discount,
+            deliveryFee = deliveryFee, productIdList = productList, content = content,
+            userId = userId, domain = domain, postImageURLList = postImageURLList
         )
-
-        return ResponseEntity.ok("포스팅 완료")
+        return ResponseEntity.ok().body(
+            CreateProductPostResponse(
+                message = "상품 게시글 작성 완료",
+                status = Responses.OK,
+                result = ProductPostDto.from(productPost)
+            )
+        )
     }
-
-    // Read
+    /**
+     * 전체 게시글 조회
+     * TODO: 페이지네이션 필요
+     */
     @GetMapping("/api/v1/post/product")
     fun findAllPost(hsr: HttpServletRequest):ResponseEntity<FindAllProductPostResponse> {
         val productPostList = productPostService.findAll()
@@ -55,26 +58,18 @@ class ProductPostApi(
             )
         )
     }
-
+    /**
+     * 상품 게시글 조회 (단건)
+     */
     @GetMapping("/api/v1/post/product/{uuid}")
     fun findPost(hsr:HttpServletRequest, @PathVariable uuid:String):ResponseEntity<FindProductPostResponse>{
-        val productPost = productPostService.findPostByUUID(UUID.fromString(uuid))
-        if(productPost != null) {
-            return ResponseEntity.ok().body(
-                FindProductPostResponse(
-                    message = "게시글 조회 성공",
-                    status = Responses.OK,
-                    result = ProductPostDto.from(productPost)
-                )
+    val productPost = productPostService.findPostByUUID(UUID.fromString(uuid))
+        return ResponseEntity.ok().body(
+            FindProductPostResponse(
+                message = "게시글 조회 성공",
+                status = Responses.OK,
+                result = ProductPostDto.from(productPost)
             )
-        } else {
-            return ResponseEntity.ok().body(
-                FindProductPostResponse(
-                    message = "게시글 조회 실패",
-                    status = Responses.NOT_FOUND,
-                    result = null
-                )
-            )
-        }
+        )
     }
 }
