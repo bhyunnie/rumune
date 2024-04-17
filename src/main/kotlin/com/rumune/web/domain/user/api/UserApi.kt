@@ -4,14 +4,15 @@ import com.rumune.web.global.enum.Responses
 import com.rumune.web.domain.user.application.UserHistoryService
 import com.rumune.web.domain.user.application.UserService
 import com.rumune.web.domain.user.dto.*
+import com.rumune.web.domain.user.dto.request.AuthenticationRequest
+import com.rumune.web.domain.user.dto.request.GetUserHistoryRequest
+import com.rumune.web.domain.user.dto.response.*
 import com.rumune.web.global.util.CookieUtil
 import com.rumune.web.global.util.ValidateUtil
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
-import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
-import java.time.OffsetDateTime
 
 @RestController
 class UserApi(
@@ -20,85 +21,71 @@ class UserApi(
     private val cookieUtil: CookieUtil,
     private val validateUtil: ValidateUtil
 ) {
-    // GET
+    /**
+     * 전체 유저 조회 (다건)
+     */
     @GetMapping("/api/v1/user/list")
-    fun findUserList(): ResponseEntity<UserInfoResponseDto> {
+    fun findUserList(): ResponseEntity<FindUserListResponse> {
         val userList = userService.findAll()
-        return ResponseEntity.ok(
-            UserInfoResponseDto(
-                Responses.OK,
-                OffsetDateTime.now().toString(),
-                userList
-            )
+        return ResponseEntity.ok()
+            .body(FindUserListResponse("전체 유저 조회 완료", Responses.OK, userList.map{UserDto.from(it)})
         )
     }
-
-    @GetMapping("/api/v1/user/{userId}")
-    fun findUserByUserId(@PathVariable userId: String): ResponseEntity<String> {
-        return ResponseEntity<String>(
-            "this is find by $userId", null, HttpStatus.OK
-        )
+    /**
+     * 유저 조회 (단건)
+     */
+    @GetMapping("/api/v1/user/{id}")
+    fun findUserByUserId(@PathVariable id: Long): ResponseEntity<FindUserResponse> {
+        val user = userService.findUserById(id)
+        return ResponseEntity.ok()
+            .body(FindUserResponse("유저 조회 완료", Responses.OK, UserDto.from(user)))
     }
-
+    /**
+     * 토큰을 통한 유저 정보 조회 (단건)
+     */
     @GetMapping("/api/v1/user/me")
-    fun findUserProfile(request:HttpServletRequest):ResponseEntity<UserInfoResponseDto> {
-        try {
-            val email = validateUtil.extractEmailFromBearerToken(request)
-            val userList = userService.findUserByEmail(email)
-            return ResponseEntity.ok(UserInfoResponseDto(Responses.OK, "API 요청 완료", userList.map{UserDto.from(it)}))
-        } catch (e:Exception) {
-            return ResponseEntity.ok(UserInfoResponseDto(Responses.ERROR, e.message.toString(), listOf()))
-        }
+    fun findUserProfile(hsr:HttpServletRequest):ResponseEntity<FindUserResponse> {
+        val email = validateUtil.extractEmailFromBearerToken(hsr)
+        val user = userService.findUserByEmail(email)
+        return ResponseEntity.ok()
+            .body(FindUserResponse("유저 조회 완료", Responses.OK, UserDto.from(user)))
     }
-
+    /**
+     * 어드민 권한 검증 
+     */
     @GetMapping("/api/v1/admin/check/authority")
-    fun checkAdminAuthority(request:HttpServletRequest):ResponseEntity<CheckUserAuthority> {
-        try {
-            val email = validateUtil.extractEmailFromBearerToken(request)
-            val result = userService.checkAuthority(email, "ROLE_ADMIN")
-            return ResponseEntity.ok(CheckUserAuthority(
-                Responses.OK,
-                "확인 완료",
-                result))
-        } catch (e:Exception) {
-            return ResponseEntity.ok(CheckUserAuthority(
-                Responses.ERROR,
-                "권한 없음",
-                false))
-        }
+    fun checkAdminAuthority(request:HttpServletRequest):ResponseEntity<CheckUserAuthorityResponse> {
+        val email = validateUtil.extractEmailFromBearerToken(request)
+        val result = userService.checkAuthority(email, "ROLE_ADMIN")
+        return ResponseEntity.ok()
+            .body(CheckUserAuthorityResponse("권한 확인 완료",Responses.OK, result))
     }
-
+    /**
+     * 유저 수 조회
+     */
     @GetMapping("/api/v1/admin/user/count")
-    fun getUserCount(@ModelAttribute getUserHistoryRequestDto: GetUserHistoryRequestDto):ResponseEntity<GetUserHistoryResponseDto> {
-        val response = userHistoryService.getUserCountHistory(getUserHistoryRequestDto.date)
+    fun getUserCount(@ModelAttribute getUserHistoryRequest: GetUserHistoryRequest):ResponseEntity<FindUserHistoryResponse> {
+        val response = userHistoryService.getUserCountHistory(getUserHistoryRequest.date)
         return ResponseEntity.ok(
-            GetUserHistoryResponseDto(
+            FindUserHistoryResponse(
                 status= Responses.OK,
                 message = "완료",
-                responseData = response.map{ it -> UserCountHistoryDto.from(it)}
+                responseData = response.map{ UserCountHistoryDto.from(it)}
             )
 
         )
     }
-
-    // POST
+    /**
+     * 자격검증
+     */
     @PostMapping("/api/v1/signin")
     fun authenticate(
-        @RequestBody authenticationRequest: AuthenticationRequestDto,
+        @RequestBody authenticationRequest: AuthenticationRequest,
         httpServletResponse: HttpServletResponse,
-    ): AuthenticationResponseDto {
+    ): AuthenticationResponse {
         val authenticationResponse = userService.authentication(authenticationRequest)
         val cookie = cookieUtil.createAccessTokenCookie(authenticationResponse.accessToken)
         httpServletResponse.addCookie(cookie)
         return authenticationResponse
     }
-
-    @PostMapping("/api/v1/user/exist")
-    fun checkExistUser(){
-        
-    }
-
-    // PUT
-
-    // DELETE
 }

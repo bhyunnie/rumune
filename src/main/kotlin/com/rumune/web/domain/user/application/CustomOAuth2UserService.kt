@@ -19,12 +19,17 @@ class CustomOAuth2UserService(
     private val userRepository: UserRepository,
     private val cartRepository: CartRepository,
 ): DefaultOAuth2UserService() {
+    /**
+     * 유저 정보 가져옴
+     * CASE
+     * 유저가 존재함 : 유저의 권한 확인
+     * 유저가 존재하지 않음 : 신규 가입
+     */
     @Override
     override fun loadUser(request: OAuth2UserRequest):OAuth2User {
         val userInfo: OAuth2UserInfo?
         val oAuth2User:OAuth2User = super.loadUser(request)
         val provider = request.clientRegistration.registrationId
-
         userInfo = when(provider.uppercase()) {
             "GOOGLE" -> GoogleUserInfo(oAuth2User.attributes)
             "KAKAO" -> KakaoUserInfo(oAuth2User.attributes)
@@ -32,12 +37,10 @@ class CustomOAuth2UserService(
             "NAVER" -> NaverUserInfo(oAuth2User.attributes)
             else -> null
         }
-
         if(userInfo == null) return oAuth2User
-
-        val foundUserList = userService.findUserByEmail(userInfo.getEmail())
+        val userOptional = userRepository.findByEmail(userInfo.getEmail())
         val authorities:Set<SimpleGrantedAuthority>
-        if (foundUserList.isEmpty()) {
+        if (userOptional.isEmpty) {
             val user = userRepository.save(
                 User(
                     provider = userInfo.getProvider(),
@@ -53,10 +56,10 @@ class CustomOAuth2UserService(
             )
             userService.addAuthority(userInfo.getEmail(),"ROLE_USER")
             authorities = HashSet(listOf(SimpleGrantedAuthority("ROLE_USER")))
-        } else if (foundUserList[0].provider != provider) {
-            throw OAuth2AlreadyExistException("이미 다른 서비스를 통해 가입 내역이 있는 이메일입니다.", foundUserList[0].provider, foundUserList[0].email)
+        } else if (userOptional.get().provider != provider) {
+            throw OAuth2AlreadyExistException("이미 다른 서비스를 통해 가입 내역이 있는 이메일입니다.", userOptional.get().provider, userOptional.get().email)
         } else {
-            authorities = foundUserList[0].authorities.map{it->SimpleGrantedAuthority(it.name)}.toSet()
+            authorities = userOptional.get().authorities.map{SimpleGrantedAuthority(it.name)}.toSet()
         }
         return DefaultOAuth2User(authorities ?: listOf(), userInfo.getAttributes(), "email")
     }

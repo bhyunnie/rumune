@@ -1,9 +1,10 @@
 package com.rumune.web.domain.user.application
 
-import com.rumune.web.domain.user.dto.AuthenticationRequestDto
-import com.rumune.web.domain.user.dto.AuthenticationResponseDto
+import com.amazonaws.services.kms.model.NotFoundException
+import com.rumune.web.domain.user.dto.request.AuthenticationRequest
+import com.rumune.web.domain.user.dto.response.AuthenticationResponse
 import com.rumune.web.domain.jwt.entity.JsonWebToken
-import com.rumune.web.domain.user.dto.CreateUserRequestDto
+import com.rumune.web.domain.user.dto.request.CreateUserRequest
 import com.rumune.web.domain.user.entity.Authority
 import com.rumune.web.domain.user.entity.User
 import com.rumune.web.domain.jwt.repository.JwtRepository
@@ -15,9 +16,7 @@ import org.springframework.context.ApplicationContext
 import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.userdetails.UserDetailsService
-import org.springframework.security.core.userdetails.UsernameNotFoundException
 import org.springframework.stereotype.Service
-import java.util.Optional
 
 @Service
 @Transactional
@@ -27,8 +26,10 @@ class UserService(
     private val refreshTokenRepository: JwtRepository,
     private val applicationContext: ApplicationContext,
 ): UserDetailsService {
-
-    fun createUser(user: CreateUserRequestDto) {
+    /**
+     * 유저 생성 (단건)
+     */
+    fun createUser(user: CreateUserRequest) {
         userRepository.save(User(
             name = user.username,
             email = user.email,
@@ -38,72 +39,85 @@ class UserService(
             pwd = user.pwd
         ))
     }
-
-    fun findUserById(userId:Long): List<User> {
-        return listOf(userRepository.findById(userId).get())
+    /**
+     * 유저 조회 (단건)
+     */
+    fun findUserById(id:Long): User {
+        val userOptional = userRepository.findById(id)
+        if(userOptional.isEmpty) throw NotFoundException("유저를 찾을 수 없습니다.")
+        return userOptional.get()
     }
-
-    fun findUserByEmail(email:String): List<User> {
-        return userRepository.findByEmail(email)
+    /**
+     * 유저 조회 by email (단건)
+     */
+    fun findUserByEmail(email:String): User {
+        val userOptional = userRepository.findByEmail(email)
+        if(userOptional.isEmpty) throw NotFoundException("유저를 찾을 수 없습니다.")
+        return userOptional.get()
     }
-
-    fun findUserByProviderId(providerId:String): List<User> {
-        return userRepository.findByProviderId(providerId)
+    /**
+     * 유저 조회 by provider id (단건)
+     */
+    fun findUserByProviderId(providerId:String): User {
+        val userOptional = userRepository.findByProviderId(providerId)
+        if(userOptional.isEmpty) throw NotFoundException("유저를 찾을 수 없습니다.")
+        return userOptional.get()
     }
-
+    /**
+     * 유저 조회 by email (단건)
+     */
     override fun loadUserByUsername(email: String): User {
-        return userRepository.findByEmail(email)[0]
+        val userOptional = userRepository.findByEmail(email)
+        if(userOptional.isEmpty) throw NotFoundException("유저를 찾을 수 없습니다.")
+        return userOptional.get()
     }
-
+    /**
+     * 권한 조회
+     */
     fun checkAuthority(email:String, authority:String): Boolean {
-        val userList = userRepository.findByEmail(email)
-        if (userList.isNotEmpty()) {
-            val user = userList[0]
-            return user.authorities.contains(Authority(userId = user.id, name = authority))
-        } else {
-            return false
-        }
+        val userOptional = userRepository.findByEmail(email)
+        if (userOptional.isEmpty) return false
+        val user = userOptional.get()
+        return user.authorities.contains(Authority(userId = user.id, name = authority))
     }
-
+    /**
+     * 권한 추가 (단건)
+     */
     fun addAuthority(email:String, authority: String) {
-        try {
-            val userList = userRepository.findByEmail(email)
-            if (userList.isNotEmpty()) {
-                val user = userList[0]
-                val newRole = Authority(user.id, authority)
-                if (!user.authorities.contains(newRole)) {
-                    user.authorities.add(newRole)
-                    userRepository.save(user)
-                }
-            } else {
-                throw Exception("유저가 없습니다.")
-            }
-        } catch (e: Exception) {
-            throw Exception("이상함")
+        val userOptional = userRepository.findByEmail(email)
+        if (userOptional.isEmpty) throw NotFoundException("유저를 찾을 수 없습니다.")
+        val user = userOptional.get()
+        val newRole = Authority(user.id, authority)
+        if (!user.authorities.contains(newRole)) {
+            user.authorities.add(newRole)
+            userRepository.save(user)
         }
     }
-
+    /**
+     * 권한 제거 
+     */
     fun removeAuthority(email: String,authority: String) {
-        val userList = userRepository.findByEmail(email)
-        if (userList.isNotEmpty()) {
-            val user = userList[0]
-            val newRole = Authority(user.id, authority)
-            if (user.authorities.contains(newRole)) {
-                user.authorities.remove(newRole)
-                userRepository.save(user)
-            }
+        val userOptional = userRepository.findByEmail(email)
+        if(userOptional.isEmpty) throw NotFoundException("유저를 찾을 수 없습니다.")
+        val user = userOptional.get()
+        val newRole = Authority(user.id, authority)
+        if (user.authorities.contains(newRole)) {
+            user.authorities.remove(newRole)
+            userRepository.save(user)
         }
     }
-
-    fun findAll(): List<UserDto> {
+    /**
+     * 전체 유저 조회
+     */
+    fun findAll(): List<User> {
         val userList = userRepository.findAll()
-        return userList.map{
-            user ->
-            UserDto.from(user)
-        }
+        if(userList.isEmpty()) throw NotFoundException("유저를 찾을 수 없습니다.")
+        return userList
     }
-
-    fun authentication(authenticationRequest: AuthenticationRequestDto): AuthenticationResponseDto {
+    /**
+     * 인증
+     */
+    fun authentication(authenticationRequest: AuthenticationRequest): AuthenticationResponse {
         val authenticationManager = applicationContext.getBean(AuthenticationManager::class.java)
         authenticationManager.authenticate(UsernamePasswordAuthenticationToken(authenticationRequest.email, authenticationRequest.password))
         val user = loadUserByUsername(authenticationRequest.email)
@@ -119,7 +133,7 @@ class UserService(
             refreshTokenRepository.save(savedRefreshToken)
         }
 
-        return AuthenticationResponseDto(
+        return AuthenticationResponse(
             userId = user.id,
             email = user.email,
             accessToken = accessToken,

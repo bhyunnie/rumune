@@ -1,12 +1,10 @@
 package com.rumune.web.domain.user.application
 
-import com.rumune.web.domain.user.dto.GetUserHistoryRequestDto
 import com.rumune.web.domain.user.entity.UserCountHistory
 import com.rumune.web.domain.user.repository.UserCountHistoryRepository
 import com.rumune.web.domain.user.repository.UserRepository
 import com.rumune.web.global.util.DateUtil
 import org.springframework.stereotype.Service
-import org.springframework.web.bind.annotation.PathVariable
 
 @Service
 class UserHistoryService(

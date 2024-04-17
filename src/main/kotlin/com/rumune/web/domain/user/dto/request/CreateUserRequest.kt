@@ -1,8 +1,8 @@
-package com.rumune.web.domain.user.dto
+package com.rumune.web.domain.user.dto.request
 
 import com.rumune.web.domain.user.entity.User
 
-class CreateUserRequestDto(
+class CreateUserRequest(
     val email: String,
     val provider: String,
     val providerId: String,
@@ -12,7 +12,7 @@ class CreateUserRequestDto(
 ) {
     companion object {
         fun from (user:User) {
-            CreateUserRequestDto(
+            CreateUserRequest(
                 email = user.email,
                 provider = user.provider,
                 providerId = user.providerId.toString(),
