@@ -26,7 +26,7 @@ class OAuth2SuccessHandler(
         if (authentication == null) throw Exception("Authentication is null.")
         val principal = authentication.principal as DefaultOAuth2User
         val providerId = principal.attributes["id"].toString()
-        val user = userService.findUserByProviderId(providerId).firstOrNull() ?: throw Exception("유저가 없습니다.")
+        val user = userService.findUserByProviderId(providerId)
         val accessToken = jwtService.generateAccessToken(user.email)
         val refreshToken = jwtService.generateRefreshToken(user.email)
         val accessTokenCookie = cookieUtil.createAccessTokenCookie(accessToken)

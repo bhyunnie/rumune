@@ -23,7 +23,7 @@ class CartService(
     /**
      * 카트에 상품 담기
      */
-    fun addProductToCart(userId:Long, productList:List<AddProductToCartRequestProduct>):List<CartProductDto> {
+    fun addProductToCart(userId:Long, productList:List<AddProductToCartRequestProduct>):List<CartProduct> {
         val productMap = productList.associateWith { it.count }.mapKeys { it.key.id }.toMutableMap()
         val cartOptional = cartRepository.findByUserId(userId)
         val cartProductEntityList = mutableListOf<CartProduct>()
@@ -45,16 +45,15 @@ class CartService(
         }
         val result = cartProductRepository.saveAll(cartProductEntityList)
 
-        return result.map{ CartProductDto.from(it) }
+        return result
     }
 
     /**
      * 카트 조회 (단건)
      */
-    fun findUserCart (userId:Long):CartDto {
+    fun findUserCart (userId:Long):Cart {
         val cartOptional = cartRepository.findByUserId(userId)
         if (cartOptional.isEmpty) throw NotFoundException("카트를 찾을 수 없습니다.")
-        val cartDto = CartDto.from(cartOptional.get())
-        return cartDto
+        return cartOptional.get()
     }
 }

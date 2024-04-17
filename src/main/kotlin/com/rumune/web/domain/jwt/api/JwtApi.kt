@@ -17,6 +17,9 @@ class JwtApi(
     private val jwtService: JwtService,
     private val cookieUtil: CookieUtil
 ) {
+    /**
+     * access token 발급
+     */
     @GetMapping("/api/v1/jwt/refresh")
     fun getAccessToken(request:HttpServletRequest, response: HttpServletResponse):ResponseEntity<RefreshAccessTokenResponse> {
         val tokenPair = jwtService.refreshAccessToken(request.getHeader("Authorization"))

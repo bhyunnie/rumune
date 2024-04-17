@@ -31,18 +31,19 @@ class CartApi(
     @PostMapping("/api/v1/cart")
     fun addProductToCart(@RequestBody request:AddProductToCartRequest ,hsr:HttpServletRequest):ResponseEntity<AddProductToCartResponse> {
         val userId = validateUtil.extractUserIdFromBearerToken(hsr)
-        val result = cartService.addProductToCart(userId, request.productList)
+        val cartProductList = cartService.addProductToCart(userId, request.productList)
         return ResponseEntity.ok().body(
             AddProductToCartResponse(
                 message = "상품 추가 완료",
                 status = Responses.OK,
-                result = result
+                result = cartProductList.map{CartProductDto.from(it)}
             )
         )
     }
 
     /**
      * 카트 조회 (Select, 단건)
+     * TODO : 로그인 이전 목록도 추가 필요
      */
     @GetMapping("/api/v1/cart")
     fun findUserCart (@RequestParam list:String?,hsr:HttpServletRequest): ResponseEntity<FindCartResponse>{
@@ -55,7 +56,7 @@ class CartApi(
             FindCartResponse(
                 message = "카트 조회 완료",
                 status = Responses.OK,
-                result = productListByCart
+                result = CartDto.from(productListByCart)
             )
         )
     }

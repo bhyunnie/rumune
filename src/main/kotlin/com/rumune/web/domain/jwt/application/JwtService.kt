@@ -1,10 +1,8 @@
 package com.rumune.web.domain.jwt.application
 
 import com.amazonaws.services.kms.model.NotFoundException
-import com.rumune.web.domain.jwt.dto.JsonWebTokenDto
 import com.rumune.web.domain.jwt.entity.JsonWebToken
 import com.rumune.web.domain.jwt.repository.JwtRepository
-import com.rumune.web.domain.user.application.UserService
 import com.rumune.web.domain.user.entity.User
 import com.rumune.web.domain.user.repository.UserRepository
 import com.rumune.web.global.properties.JwtProperties
@@ -29,9 +27,9 @@ class JwtService(
      */
     fun refreshAccessToken(token:String):Map<String,String> {
         val email = getEmailOfToken(token)
-        val user = userRepository.findByEmail(email)
-        if (user.isEmpty()) throw Exception("유저 정보가 없습니다.")
-        val isVerified =  validRefreshToken(token,user[0], email)
+        val userOptional = userRepository.findByEmail(email)
+        if(userOptional.isEmpty) throw NotFoundException("유저 정보가 없습니다.")
+        val isVerified =  validRefreshToken(token, userOptional.get(), email)
         if(isVerified) {
             val oldToken = jwtRepository.findByJwt(token).get()
             val accessToken = generateAccessToken(email)
@@ -106,7 +104,7 @@ class JwtService(
     /**
      * 토큰 갱신
      */
-    fun updateJwt(userId:Long, jsonWebToken: String): JsonWebTokenDto {
+    fun updateJwt(userId:Long, jsonWebToken: String): JsonWebToken {
         try {
             val jwtOptional = jwtRepository.findByUserId(userId)
             val result: JsonWebToken
@@ -117,7 +115,7 @@ class JwtService(
                 jwt.jwt = jsonWebToken
                 result = jwtRepository.save(jwt)
             }
-            return JsonWebTokenDto.from(result)
+            return result
         } catch(e: Exception) {
             throw Exception("토큰 갱신 중 에러가 발생했습니다")
         }
