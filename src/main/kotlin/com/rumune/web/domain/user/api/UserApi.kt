@@ -7,8 +7,8 @@ import com.rumune.web.domain.user.dto.*
 import com.rumune.web.domain.user.dto.request.AuthenticationRequest
 import com.rumune.web.domain.user.dto.request.GetUserHistoryRequest
 import com.rumune.web.domain.user.dto.response.*
+import com.rumune.web.global.extensionFunctions.getUserId
 import com.rumune.web.global.util.CookieUtil
-import com.rumune.web.global.util.ValidateUtil
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
 import org.springframework.http.ResponseEntity
@@ -19,7 +19,6 @@ class UserApi(
     private val userService: UserService,
     private val userHistoryService: UserHistoryService,
     private val cookieUtil: CookieUtil,
-    private val validateUtil: ValidateUtil
 ) {
     /**
      * 전체 유저 조회 (다건)
@@ -45,8 +44,7 @@ class UserApi(
      */
     @GetMapping("/api/v1/user/me")
     fun findUserProfile(hsr:HttpServletRequest):ResponseEntity<FindUserResponse> {
-        val email = validateUtil.extractEmailFromBearerToken(hsr)
-        val user = userService.findUserByEmail(email)
+        val user = userService.findUserById(hsr.getUserId())
         return ResponseEntity.ok()
             .body(FindUserResponse("유저 조회 완료", Responses.OK, UserDto.from(user)))
     }
@@ -54,9 +52,9 @@ class UserApi(
      * 어드민 권한 검증 
      */
     @GetMapping("/api/v1/admin/check/authority")
-    fun checkAdminAuthority(request:HttpServletRequest):ResponseEntity<CheckUserAuthorityResponse> {
-        val email = validateUtil.extractEmailFromBearerToken(request)
-        val result = userService.checkAuthority(email, "ROLE_ADMIN")
+    fun checkAdminAuthority(hsr:HttpServletRequest):ResponseEntity<CheckUserAuthorityResponse> {
+        val user = userService.findUserById(hsr.getUserId())
+        val result = userService.checkAuthority(user.email, "ROLE_ADMIN")
         return ResponseEntity.ok()
             .body(CheckUserAuthorityResponse("권한 확인 완료",Responses.OK, result))
     }

@@ -23,9 +23,9 @@ class JwtService(
     private val refreshTokenExpirationDuration = jwtProperties.refreshTokenExpireDuration
 
     /**
-     * access token 갱신
+     * Access Token, Refresh Token 갱신
      */
-    fun refreshAccessToken(token:String):Map<String,String> {
+    fun refreshTokens(token:String):Map<String,String> {
         val email = getEmailOfToken(token)
         val userOptional = userRepository.findByEmail(email)
         if(userOptional.isEmpty) throw NotFoundException("유저 정보가 없습니다.")
@@ -40,7 +40,6 @@ class JwtService(
         }
         return mapOf()
     }
-
     /**
      * access token 생성
      */
@@ -100,7 +99,14 @@ class JwtService(
     fun save(jsonWebToken: JsonWebToken): JsonWebToken {
         return jwtRepository.save(jsonWebToken)
     }
-
+    /**
+     * Refresh Token 조회
+     */
+    fun findRefreshToken(refreshToken:String):JsonWebToken {
+        val refreshTokenOptional = jwtRepository.findByJwt(refreshToken)
+        if (refreshTokenOptional.isEmpty) throw NotFoundException("토큰을 찾을 수 없습니다.")
+        return refreshTokenOptional.get()
+    }
     /**
      * 토큰 갱신
      */

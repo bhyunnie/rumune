@@ -78,20 +78,21 @@ class UserService(
         val userOptional = userRepository.findByEmail(email)
         if (userOptional.isEmpty) return false
         val user = userOptional.get()
-        return user.authorities.contains(Authority(userId = user.id, name = authority))
+        return user.authorities.contains(Authority(userId = user, name = authority))
     }
     /**
      * 권한 추가 (단건)
      */
-    fun addAuthority(email:String, authority: String) {
+    fun addAuthority(email:String, authority: String):Authority {
         val userOptional = userRepository.findByEmail(email)
         if (userOptional.isEmpty) throw NotFoundException("유저를 찾을 수 없습니다.")
         val user = userOptional.get()
-        val newRole = Authority(user.id, authority)
+        val newRole = Authority(user, authority)
         if (!user.authorities.contains(newRole)) {
             user.authorities.add(newRole)
             userRepository.save(user)
         }
+        return newRole
     }
     /**
      * 권한 제거 
@@ -100,7 +101,7 @@ class UserService(
         val userOptional = userRepository.findByEmail(email)
         if(userOptional.isEmpty) throw NotFoundException("유저를 찾을 수 없습니다.")
         val user = userOptional.get()
-        val newRole = Authority(user.id, authority)
+        val newRole = Authority(user, authority)
         if (user.authorities.contains(newRole)) {
             user.authorities.remove(newRole)
             userRepository.save(user)
@@ -123,7 +124,6 @@ class UserService(
         val user = loadUserByUsername(authenticationRequest.email)
         val accessToken = jwtService.generateAccessToken(user.email)
         val refreshToken = jwtService.generateRefreshToken(user.email)
-
         val refreshTokenOptional = refreshTokenRepository.findByUserId(user.id)
         if (refreshTokenOptional.isEmpty) {
             refreshTokenRepository.save(JsonWebToken(jwt=refreshToken, userId = user.id))
@@ -132,7 +132,6 @@ class UserService(
             savedRefreshToken.jwt = refreshToken
             refreshTokenRepository.save(savedRefreshToken)
         }
-
         return AuthenticationResponse(
             userId = user.id,
             email = user.email,

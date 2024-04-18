@@ -1,10 +1,6 @@
 package com.rumune.web.domain.user.entity
 
-import jakarta.persistence.Column
-import jakarta.persistence.Entity
-import jakarta.persistence.Id
-import jakarta.persistence.IdClass
-import jakarta.persistence.Table
+import jakarta.persistence.*
 import org.springframework.security.core.GrantedAuthority
 
 @Entity
@@ -12,9 +8,9 @@ import org.springframework.security.core.GrantedAuthority
 @IdClass(Authority::class)
 data class Authority (
     @Id
-    @Column(name="user_id")
-    var userId: Long,
-
+    @ManyToOne(fetch = FetchType.EAGER, cascade = [CascadeType.REMOVE])
+    @JoinColumn(name ="user_id", nullable = false)
+    var userId: User,
     @Id
     @Column(name="name")
     var name: String,

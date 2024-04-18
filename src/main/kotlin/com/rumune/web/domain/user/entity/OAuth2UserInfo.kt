@@ -1,10 +1,11 @@
 package com.rumune.web.domain.user.entity
 
 interface OAuth2UserInfo {
-    fun getId():String
-    fun getProvider():String
-    fun getEmail():String
-    fun getName():String
-    fun getProfileImage():String
-    fun getAttributes():Map<String, String>
+    val id:String
+    val provider:String
+    val email:String
+    val name:String
+    val profileImage:String
+    val attributes:Map<String,Any>
+    val claims:Map<String,Any>
 }

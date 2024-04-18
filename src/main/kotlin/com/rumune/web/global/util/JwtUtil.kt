@@ -7,7 +7,7 @@ import jakarta.servlet.http.HttpServletRequest
 import org.springframework.stereotype.Component
 
 @Component
-class ValidateUtil(
+class JwtUtil(
     private val jwtService: JwtService,
     private val userService: UserService
 ) {
@@ -23,6 +23,6 @@ class ValidateUtil(
     fun extractUserIdFromBearerToken(request:HttpServletRequest):Long {
         val email = extractEmailFromBearerToken(request)
         val user = userService.findUserByEmail(email)
-        return user[0].id
+        return user.id
     }
 }

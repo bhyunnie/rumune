@@ -2,6 +2,7 @@ package com.rumune.web.global.security.filter
 
 import com.rumune.web.domain.user.application.UserService
 import com.rumune.web.domain.jwt.application.JwtService
+import com.rumune.web.global.util.JwtUtil
 import jakarta.servlet.FilterChain
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
@@ -17,6 +18,7 @@ import org.springframework.web.filter.OncePerRequestFilter
 class JwtAuthenticationFilter(
     private val jwtService: JwtService,
     private val userService: UserService,
+    private val jwtUtil: JwtUtil
 ): OncePerRequestFilter() {
     companion object {
         const val HEADER_AUTHORIZATION = "Authorization"
@@ -40,12 +42,12 @@ class JwtAuthenticationFilter(
         val email = jwtService.getEmailOfToken(token)
 
         if (email.isNotEmpty() && SecurityContextHolder.getContext().authentication == null) {
-            val userInfo = userService.findUserByEmail(email)[0]
+            val userInfo = userService.findUserByEmail(email)
             val foundUser = userService.loadUserByUsername(userInfo.email)
-            if(jwtService.validToken(token, foundUser, email)) {
-                updateContext(foundUser, request)
-            }
+            if(jwtService.validToken(token, foundUser, email)) updateContext(foundUser, request)
         }
+        val userId = jwtUtil.extractUserIdFromBearerToken(request)
+        request.setAttribute("userId",userId)
         filterChain.doFilter(request,response)
     }
 

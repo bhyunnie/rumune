@@ -3,12 +3,14 @@ package com.rumune.web.domain.user.application
 import com.rumune.web.domain.cart.entity.Cart
 import com.rumune.web.domain.cart.repository.CartRepository
 import com.rumune.web.domain.user.entity.*
+import com.rumune.web.domain.user.enum.Providers
 import com.rumune.web.domain.user.repository.UserRepository
 import com.rumune.web.global.exception.OAuth2AlreadyExistException
 import org.springframework.security.core.GrantedAuthority
 import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest
+import org.springframework.security.oauth2.core.OAuth2AuthorizationException
 import org.springframework.security.oauth2.core.user.DefaultOAuth2User
 import org.springframework.security.oauth2.core.user.OAuth2User
 import org.springframework.stereotype.Component
@@ -27,40 +29,64 @@ class CustomOAuth2UserService(
      */
     @Override
     override fun loadUser(request: OAuth2UserRequest):OAuth2User {
-        val userInfo: OAuth2UserInfo?
         val oAuth2User:OAuth2User = super.loadUser(request)
         val provider = request.clientRegistration.registrationId
-        userInfo = when(provider.uppercase()) {
-            "GOOGLE" -> GoogleUserInfo(oAuth2User.attributes)
-            "KAKAO" -> KakaoUserInfo(oAuth2User.attributes)
-            "DISCORD" -> DiscordUserInfo(oAuth2User.attributes)
-            "NAVER" -> NaverUserInfo(oAuth2User.attributes)
-            else -> null
+        val userInfo: OAuth2UserInfo = extractUserInfo(provider, oAuth2User)
+        val authorities:List<SimpleGrantedAuthority> = extractUserAuthority(userInfo)
+        return DefaultOAuth2User(authorities, userInfo.claims, "email")
+    }
+    /**
+     * 각 provider 에 맞춘 userInfo 주입
+     */
+    private fun extractUserInfo (provider: String, oAuth2User:OAuth2User):OAuth2UserInfo {
+        return when(provider.uppercase()) {
+            Providers.GOOGLE.name -> GoogleUserInfo(oAuth2User.attributes)
+            Providers.KAKAO.name -> KakaoUserInfo(oAuth2User.attributes)
+            Providers.DISCORD.name -> DiscordUserInfo(oAuth2User.attributes)
+            Providers.NAVER.name -> NaverUserInfo(oAuth2User.attributes)
+            else -> throw Exception("지원하지 않는 서비스입니다.")
         }
-        if(userInfo == null) return oAuth2User
-        val userOptional = userRepository.findByEmail(userInfo.getEmail())
-        val authorities:Set<SimpleGrantedAuthority>
+    }
+    /**
+     * email 을 통해 유저를 조회 후 유저로부터 권한을 추출
+     */
+    private fun extractUserAuthority (userInfo:OAuth2UserInfo): List<SimpleGrantedAuthority> {
+        val userOptional = userRepository.findByEmail(userInfo.email)
         if (userOptional.isEmpty) {
-            val user = userRepository.save(
-                User(
-                    provider = userInfo.getProvider(),
-                    email = userInfo.getEmail(),
-                    pwd = "",
-                    profileImage = userInfo.getProfileImage(),
-                    providerId = userInfo.getId(),
-                    name = userInfo.getName()
-                )
-            )
-            cartRepository.save(
-                Cart(user = user)
-            )
-            userService.addAuthority(userInfo.getEmail(),"ROLE_USER")
-            authorities = HashSet(listOf(SimpleGrantedAuthority("ROLE_USER")))
-        } else if (userOptional.get().provider != provider) {
+            val user = saveUserByUserInfo(userInfo)
+            saveCart(user)
+            return listOf(SimpleGrantedAuthority(addAuthority(user,"ROLE_USER").authority))
+        } else if (userOptional.get().provider != userInfo.provider) {
             throw OAuth2AlreadyExistException("이미 다른 서비스를 통해 가입 내역이 있는 이메일입니다.", userOptional.get().provider, userOptional.get().email)
         } else {
-            authorities = userOptional.get().authorities.map{SimpleGrantedAuthority(it.name)}.toSet()
+            return userOptional.get().authorities.map{SimpleGrantedAuthority(it.name)}
         }
-        return DefaultOAuth2User(authorities ?: listOf(), userInfo.getAttributes(), "email")
+    }
+    /**
+     * userInfo 를 통한 유저 저장
+     */
+    private fun saveUserByUserInfo (userInfo: OAuth2UserInfo):User {
+        return userRepository.save(
+            User(
+                provider = userInfo.provider,
+                email = userInfo.email,
+                pwd = "",
+                profileImage = userInfo.profileImage,
+                providerId = userInfo.id,
+                name = userInfo.name
+            )
+        )
+    }
+    /**
+     * 카트 저장
+     */
+    private fun saveCart(user: User):Cart {
+        return cartRepository.save(Cart(user = user))
+    }
+    /**
+     * 권한 추가
+     */
+    private fun addAuthority(user:User, authority:String):Authority {
+        return userService.addAuthority(user.email,authority)
     }
 }

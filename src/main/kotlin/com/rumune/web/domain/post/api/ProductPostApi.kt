@@ -7,20 +7,18 @@ import com.rumune.web.domain.post.dto.response.CreateProductPostResponse
 import com.rumune.web.domain.post.dto.response.FindAllProductPostResponse
 import com.rumune.web.domain.post.dto.response.FindProductPostResponse
 import com.rumune.web.global.enum.Responses
-import com.rumune.web.global.util.ValidateUtil
+import com.rumune.web.global.extensionFunctions.getUserId
 import jakarta.servlet.http.HttpServletRequest
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.ModelAttribute
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import java.util.UUID
 
 @RestController
 class ProductPostApi(
-    private val validateUtil: ValidateUtil,
     private val productPostService: ProductPostService
 ) {
     /**
@@ -28,12 +26,11 @@ class ProductPostApi(
      */
     @PostMapping("/admin/api/v1/post/product")
     fun createProductPost(@ModelAttribute request:CreateProductPostRequest,hsr:HttpServletRequest):ResponseEntity<CreateProductPostResponse> {
-        val userId = validateUtil.extractUserIdFromBearerToken(hsr)
         val (thumbnail,title,discount,deliveryFee,productList,content,domain,postImageURLList) = request
         val productPost = productPostService.createProductPost(
             thumbnail = thumbnail, title = title, discount= discount,
             deliveryFee = deliveryFee, productIdList = productList, content = content,
-            userId = userId, domain = domain, postImageURLList = postImageURLList
+            userId = hsr.getUserId(), domain = domain, postImageURLList = postImageURLList
         )
         return ResponseEntity.ok().body(
             CreateProductPostResponse(
@@ -63,7 +60,7 @@ class ProductPostApi(
      */
     @GetMapping("/api/v1/post/product/{uuid}")
     fun findPost(hsr:HttpServletRequest, @PathVariable uuid:String):ResponseEntity<FindProductPostResponse>{
-    val productPost = productPostService.findPostByUUID(UUID.fromString(uuid))
+        val productPost = productPostService.findPostByUUID(UUID.fromString(uuid))
         return ResponseEntity.ok().body(
             FindProductPostResponse(
                 message = "게시글 조회 성공",

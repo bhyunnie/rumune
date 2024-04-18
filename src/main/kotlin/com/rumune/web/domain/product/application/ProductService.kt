@@ -8,8 +8,7 @@ import com.rumune.web.domain.product.dto.request.CreateProductRequest
 import com.rumune.web.domain.product.entity.Product
 import com.rumune.web.domain.product.entity.ProductImage
 import com.rumune.web.domain.product.repository.ProductRepository
-import com.rumune.web.global.util.ValidateUtil
-import jakarta.servlet.http.HttpServletRequest
+import com.rumune.web.global.util.JwtUtil
 import org.springframework.stereotype.Service
 
 @Service
@@ -17,15 +16,14 @@ class ProductService(
     private val productRepository: ProductRepository,
     private val productFileService: ProductFileService,
     private val fileService: FileService,
-    private val validateUtil: ValidateUtil
+    private val jwtUtil: JwtUtil
 ) {
     /**
      * 상품 등록 (단건)
      */
-    fun registProduct(request: CreateProductRequest, hsr:HttpServletRequest):Product {
+    fun registProduct(request: CreateProductRequest, userId:Long):Product {
         try {
             val fileList = mutableListOf<ProductImage>()
-            val userId = validateUtil.extractUserIdFromBearerToken(hsr)
             val product = createProduct(request.name,request.price,request.quantityLimit, request.categoryId)
             for(i in request.files.indices) {
                 val file = request.files[i]

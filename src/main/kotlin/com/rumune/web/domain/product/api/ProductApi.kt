@@ -6,10 +6,15 @@ import com.rumune.web.domain.product.dto.request.CreateProductRequest
 import com.rumune.web.domain.product.dto.ProductDto
 import com.rumune.web.domain.product.dto.response.ProductListResponse
 import com.rumune.web.domain.product.dto.response.ProductResponse
-import com.rumune.web.global.enum.Scope
+import com.rumune.web.global.extensionFunctions.getUserId
 import jakarta.servlet.http.HttpServletRequest
 import org.springframework.http.ResponseEntity
-import org.springframework.web.bind.annotation.*
+import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.ModelAttribute
+import org.springframework.web.bind.annotation.PathVariable
+import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.RequestParam
+import org.springframework.web.bind.annotation.RestController
 
 @RestController
 class ProductApi(
@@ -20,7 +25,7 @@ class ProductApi(
      */
     @PostMapping("/admin/api/v1/product")
     fun createProduct(@ModelAttribute request: CreateProductRequest, hsr:HttpServletRequest): ResponseEntity<ProductResponse> {
-        val product = productService.registProduct(request,hsr)
+        val product = productService.registProduct(request,hsr.getUserId())
         return ResponseEntity.ok(
             ProductResponse(message = "상품 등록 완료", status = Responses.OK, result = ProductDto.from(product))
         )

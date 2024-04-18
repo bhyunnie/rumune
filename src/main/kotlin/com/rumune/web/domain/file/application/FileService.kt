@@ -4,7 +4,6 @@ import com.amazonaws.services.s3.AmazonS3Client
 import com.amazonaws.services.s3.model.CannedAccessControlList
 import com.amazonaws.services.s3.model.ObjectMetadata
 import com.amazonaws.services.s3.model.PutObjectRequest
-import com.rumune.web.domain.file.dto.FileDto
 import com.rumune.web.domain.file.entity.File
 import com.rumune.web.domain.file.repository.FileRepository
 import com.rumune.web.global.properties.CloudProperties

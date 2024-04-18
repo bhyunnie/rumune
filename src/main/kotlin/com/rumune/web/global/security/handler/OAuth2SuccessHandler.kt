@@ -23,7 +23,7 @@ class OAuth2SuccessHandler(
         response: HttpServletResponse,
         authentication: Authentication?
     ) {
-        if (authentication == null) throw Exception("Authentication is null.")
+        if (authentication == null) throw Exception("인증 정보가 없습니다.")
         val principal = authentication.principal as DefaultOAuth2User
         val providerId = principal.attributes["id"].toString()
         val user = userService.findUserByProviderId(providerId)
@@ -32,7 +32,6 @@ class OAuth2SuccessHandler(
         val accessTokenCookie = cookieUtil.createAccessTokenCookie(accessToken)
         val refreshTokenCookie = cookieUtil.createRefreshTokenCookie(refreshToken)
         jwtService.updateJwt(user.id, refreshToken)
-
         response.addCookie(accessTokenCookie)
         response.addCookie(refreshTokenCookie)
         response.sendRedirect("http://localhost:3000")
