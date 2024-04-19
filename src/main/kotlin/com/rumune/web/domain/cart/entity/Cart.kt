@@ -10,7 +10,7 @@ class Cart(
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long = 0,
 
-    @OneToOne
+    @OneToOne(cascade = [(CascadeType.REMOVE)])
     @JoinColumn(name="user_id")
     val user: User,
 

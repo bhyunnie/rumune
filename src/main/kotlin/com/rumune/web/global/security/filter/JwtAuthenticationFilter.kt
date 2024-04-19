@@ -30,25 +30,29 @@ class JwtAuthenticationFilter(
         response: HttpServletResponse,
         filterChain: FilterChain
     ) {
-        val authorizationHeader:String? = request.getHeader(HEADER_AUTHORIZATION)
-       if (authorizationHeader.hasNotToken()) {
-           filterChain.doFilter(request,response)
-           return
-       }
+        try {
+            val authorizationHeader:String? = request.getHeader(HEADER_AUTHORIZATION)
+            if (authorizationHeader.hasNotToken()) {
+                filterChain.doFilter(request,response)
+                return
+            }
 
-        if (authorizationHeader == null) throw AuthenticationException("인증 헤더 값을 찾을 수 없습니다.")
+            if (authorizationHeader == null) throw AuthenticationException("인증 헤더 값을 찾을 수 없습니다.")
 
-        val token = authorizationHeader.extractTokenValue()
-        val email = jwtService.getEmailOfToken(token)
+            val token = authorizationHeader.extractTokenValue()
+            val email = jwtService.getEmailOfToken(token)
 
-        if (email.isNotEmpty() && SecurityContextHolder.getContext().authentication == null) {
-            val userInfo = userService.findUserByEmail(email)
-            val foundUser = userService.loadUserByUsername(userInfo.email)
-            if(jwtService.validToken(token, foundUser, email)) updateContext(foundUser, request)
+            if (email.isNotEmpty() && SecurityContextHolder.getContext().authentication == null) {
+                val userInfo = userService.findUserByEmail(email)
+                val foundUser = userService.loadUserByUsername(userInfo.email)
+                if(jwtService.validToken(token, foundUser, email)) updateContext(foundUser, request)
+            }
+            val userId = jwtUtil.extractUserIdFromBearerToken(request)
+            request.setAttribute("userId",userId)
+            filterChain.doFilter(request,response)
+        } catch (e:Exception){
+            throw e
         }
-        val userId = jwtUtil.extractUserIdFromBearerToken(request)
-        request.setAttribute("userId",userId)
-        filterChain.doFilter(request,response)
     }
 
     private fun updateContext(user:UserDetails,request:HttpServletRequest) {

@@ -1,8 +1,9 @@
 package com.rumune.web.domain.user.entity
 
-class NaverUserInfo(
-    override val attributes: Map<String,Any>,
-): OAuth2UserInfo {
+import org.springframework.security.oauth2.core.user.OAuth2User
+
+class NaverUserInfo(user:OAuth2User): OAuth2UserInfo {
+    override val attributes: Map<String,Any> = user.attributes
     private val response:Map<String, Any> = attributes["response"] as Map<String,Any>
     override val id = response["id"].toString();
     override val email = response["email"].toString()

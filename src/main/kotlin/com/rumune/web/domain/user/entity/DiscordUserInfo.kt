@@ -1,8 +1,9 @@
 package com.rumune.web.domain.user.entity
 
-class DiscordUserInfo(
-    override val attributes: Map<String,Any>,
-): OAuth2UserInfo {
+import org.springframework.security.oauth2.core.user.OAuth2User
+
+class DiscordUserInfo(user:OAuth2User): OAuth2UserInfo {
+    override val attributes: MutableMap<String, Any> = user.attributes
     override val id = attributes["id"].toString()
     override val provider = "discord"
     override val email = attributes["email"].toString()

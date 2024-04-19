@@ -6,11 +6,9 @@ import com.rumune.web.domain.user.entity.*
 import com.rumune.web.domain.user.enum.Providers
 import com.rumune.web.domain.user.repository.UserRepository
 import com.rumune.web.global.exception.OAuth2AlreadyExistException
-import org.springframework.security.core.GrantedAuthority
 import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest
-import org.springframework.security.oauth2.core.OAuth2AuthorizationException
 import org.springframework.security.oauth2.core.user.DefaultOAuth2User
 import org.springframework.security.oauth2.core.user.OAuth2User
 import org.springframework.stereotype.Component
@@ -40,10 +38,10 @@ class CustomOAuth2UserService(
      */
     private fun extractUserInfo (provider: String, oAuth2User:OAuth2User):OAuth2UserInfo {
         return when(provider.uppercase()) {
-            Providers.GOOGLE.name -> GoogleUserInfo(oAuth2User.attributes)
-            Providers.KAKAO.name -> KakaoUserInfo(oAuth2User.attributes)
-            Providers.DISCORD.name -> DiscordUserInfo(oAuth2User.attributes)
-            Providers.NAVER.name -> NaverUserInfo(oAuth2User.attributes)
+            Providers.GOOGLE.name -> GoogleUserInfo(oAuth2User)
+            Providers.KAKAO.name -> KakaoUserInfo(oAuth2User)
+            Providers.DISCORD.name -> DiscordUserInfo(oAuth2User)
+            Providers.NAVER.name -> NaverUserInfo(oAuth2User)
             else -> throw Exception("지원하지 않는 서비스입니다.")
         }
     }
@@ -51,16 +49,16 @@ class CustomOAuth2UserService(
      * email 을 통해 유저를 조회 후 유저로부터 권한을 추출
      */
     private fun extractUserAuthority (userInfo:OAuth2UserInfo): List<SimpleGrantedAuthority> {
-        val userOptional = userRepository.findByEmail(userInfo.email)
-        if (userOptional.isEmpty) {
-            val user = saveUserByUserInfo(userInfo)
-            saveCart(user)
-            return listOf(SimpleGrantedAuthority(addAuthority(user,"ROLE_USER").authority))
-        } else if (userOptional.get().provider != userInfo.provider) {
-            throw OAuth2AlreadyExistException("이미 다른 서비스를 통해 가입 내역이 있는 이메일입니다.", userOptional.get().provider, userOptional.get().email)
-        } else {
-            return userOptional.get().authorities.map{SimpleGrantedAuthority(it.name)}
-        }
+            val userOptional = userRepository.findByEmail(userInfo.email)
+            if (userOptional.isEmpty) {
+                val user = saveUserByUserInfo(userInfo)
+                saveCart(user)
+                return listOf(SimpleGrantedAuthority(addAuthority(user,"ROLE_USER").authority))
+            } else if (userOptional.get().provider != userInfo.provider) {
+                throw OAuth2AlreadyExistException("이미 다른 서비스를 통해 가입 내역이 있는 이메일입니다.", userOptional.get().provider, userOptional.get().email)
+            } else {
+                return userOptional.get().authorities.map{SimpleGrantedAuthority(it.name)}
+            }
     }
     /**
      * userInfo 를 통한 유저 저장
@@ -87,6 +85,6 @@ class CustomOAuth2UserService(
      * 권한 추가
      */
     private fun addAuthority(user:User, authority:String):Authority {
-        return userService.addAuthority(user.email,authority)
+        return userService.addAuthority(user.email.toString(),authority)
     }
 }

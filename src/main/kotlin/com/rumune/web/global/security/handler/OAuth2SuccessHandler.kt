@@ -1,9 +1,8 @@
 package com.rumune.web.global.security.handler
 
-import com.rumune.web.domain.jwt.entity.JsonWebToken
+import com.amazonaws.services.kms.model.NotFoundException
 import com.rumune.web.domain.jwt.application.JwtService
 import com.rumune.web.domain.user.application.UserService
-import com.rumune.web.domain.user.entity.User
 import com.rumune.web.global.util.CookieUtil
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
@@ -23,7 +22,7 @@ class OAuth2SuccessHandler(
         response: HttpServletResponse,
         authentication: Authentication?
     ) {
-        if (authentication == null) throw Exception("인증 정보가 없습니다.")
+        if (authentication == null) throw NotFoundException("인증 정보가 없습니다.")
         val principal = authentication.principal as DefaultOAuth2User
         val providerId = principal.attributes["id"].toString()
         val user = userService.findUserByProviderId(providerId)
