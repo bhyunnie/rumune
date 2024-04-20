@@ -56,11 +56,12 @@ class SecurityConfig(
                         "/",
                         "/api/v1/signin",
                         "/api/v1/category",
-                        "/api/v1/post/product",
+                        "/api/v1/post/product/**",
+                        "/swagger-ui/**",
+                        "/v3/api-docs/**"
                     ).permitAll()
                     .requestMatchers("/api/v1/admin/**").hasRole("ADMIN")
-//                    .requestMatchers("/api/**").authenticated()
-                    .anyRequest().authenticated() // 제외 전부 권한 체크
+                    .anyRequest().authenticated()
             }
             .exceptionHandling{ exception ->
                 exception.authenticationEntryPoint(authenticationFailedHandler)
