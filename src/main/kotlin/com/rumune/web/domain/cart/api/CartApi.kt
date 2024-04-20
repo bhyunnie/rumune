@@ -12,9 +12,8 @@ import com.rumune.web.global.enum.Responses
 import com.rumune.web.global.extensionFunctions.getUserId
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.Parameter
-import io.swagger.v3.oas.annotations.media.Content
+import io.swagger.v3.oas.annotations.enums.ParameterIn
 import io.swagger.v3.oas.annotations.media.Schema
-import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.servlet.http.HttpServletRequest
 import org.springframework.http.ResponseEntity
@@ -30,12 +29,13 @@ class CartApi(
     private val productService: ProductService,
     private val cartService: CartService
 ) {
-    /**
-     * 카트에 상품 담기 (Insert, 다건)
-     */
-    @Operation(summary = "카트 상품 추가", description = "카트에 상품을 1건 추가합니다")
+    @Operation(summary = "장바구니 상품 추가", description = "장바구니에 상품을 여러건 추가합니다")
     @PostMapping("/api/v1/cart")
-    fun addProductToCart(@RequestBody request:AddProductToCartRequest ,hsr:HttpServletRequest):ResponseEntity<AddProductToCartResponse> {
+    fun addProductToCart(
+        @Parameter(
+            schema = Schema(implementation = AddProductToCartRequest::class),
+            name = "cart", description = "장바구니 조회 요청", required = true, `in` = ParameterIn.QUERY)
+        @RequestBody request:AddProductToCartRequest ,hsr:HttpServletRequest):ResponseEntity<AddProductToCartResponse> {
         val cartProductList = cartService.addProductToCart(hsr.getUserId(), request.productList)
         return ResponseEntity.ok().body(
             AddProductToCartResponse(
@@ -45,14 +45,12 @@ class CartApi(
             )
         )
     }
-    /**
-     * 카트 조회 (Select, 단건)
-     * TODO : 로그인 이전 목록도 추가 필요
-     */
+    // TODO : 로그인 이전 목록도 추가 필요
+    @Operation(summary = "장바구니 조회", description = "유저의 장바구니를 조회합니다.")
     @GetMapping("/api/v1/cart")
-    fun findUserCart (@RequestParam list:String?,hsr:HttpServletRequest): ResponseEntity<FindCartResponse>{
+    fun findUserCart (@RequestParam beforeLoginList:String?,hsr:HttpServletRequest): ResponseEntity<FindCartResponse>{
         var productListBeforeLogin = listOf<Product>()
-        if(list != null) productListBeforeLogin = productService.findProductList(productIdList=list.split(",").map{it.toLong()})
+        if(beforeLoginList != null) productListBeforeLogin = productService.findProductList(productIdList=beforeLoginList.split(",").map{it.toLong()})
         val productListByCart = cartService.findUserCart(hsr.getUserId())
 
         return ResponseEntity.ok().body(
