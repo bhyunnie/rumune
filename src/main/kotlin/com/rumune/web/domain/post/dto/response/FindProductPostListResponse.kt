@@ -4,7 +4,7 @@ import com.rumune.web.domain.common.dto.CommonResponse
 import com.rumune.web.domain.post.dto.ProductPostDto
 import com.rumune.web.global.enum.Responses
 
-class FindAllProductPostResponse(
+class FindProductPostListResponse(
     override val message: String,
     override val status: Responses,
     override val result: List<ProductPostDto>
