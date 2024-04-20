@@ -69,7 +69,14 @@ class ProductPostService(
         if(postList.isEmpty()) throw NotFoundException("게시글이 없습니다.")
         return postList
     }
-
+    /**
+     * 상품 게시글 조회 By 카테고리 (다건)
+     */
+    fun findPostByCategory(category:String): List<ProductPost> {
+        val productPostList = productPostRepository.findProductPostByCategoryName(category)
+        if (productPostList.isEmpty()) throw NotFoundException("게시글을 찾을 수 없습니다.")
+        return productPostList
+    }
     /**
      * 상품 게시글 조회 (단건)
      */

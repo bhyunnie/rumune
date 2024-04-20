@@ -29,7 +29,6 @@ class CategoryApi(
             )
         )
     }
-
     /**
      * 카테고리 조회 (다건)
      */

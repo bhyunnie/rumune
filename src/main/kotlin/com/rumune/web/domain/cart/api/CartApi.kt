@@ -10,6 +10,12 @@ import com.rumune.web.domain.product.application.ProductService
 import com.rumune.web.domain.product.entity.Product
 import com.rumune.web.global.enum.Responses
 import com.rumune.web.global.extensionFunctions.getUserId
+import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.Parameter
+import io.swagger.v3.oas.annotations.media.Content
+import io.swagger.v3.oas.annotations.media.Schema
+import io.swagger.v3.oas.annotations.responses.ApiResponse
+import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.servlet.http.HttpServletRequest
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
@@ -18,6 +24,7 @@ import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 
+@Tag(name = "장바구니", description = "장바구니 API 입니다.")
 @RestController
 class CartApi(
     private val productService: ProductService,
@@ -26,6 +33,7 @@ class CartApi(
     /**
      * 카트에 상품 담기 (Insert, 다건)
      */
+    @Operation(summary = "카트 상품 추가", description = "카트에 상품을 1건 추가합니다")
     @PostMapping("/api/v1/cart")
     fun addProductToCart(@RequestBody request:AddProductToCartRequest ,hsr:HttpServletRequest):ResponseEntity<AddProductToCartResponse> {
         val cartProductList = cartService.addProductToCart(hsr.getUserId(), request.productList)
@@ -37,7 +45,6 @@ class CartApi(
             )
         )
     }
-
     /**
      * 카트 조회 (Select, 단건)
      * TODO : 로그인 이전 목록도 추가 필요

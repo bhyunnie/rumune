@@ -16,12 +16,12 @@ class JwtApi(
     private val cookieUtil: CookieUtil
 ) {
     /**
-     * access token 발급
+     * access token 재발급
      */
     @GetMapping("/api/v1/jwt/refresh")
     fun getAccessToken(request:HttpServletRequest, response: HttpServletResponse):ResponseEntity<RefreshAccessTokenResponse> {
-        val tokenPair = jwtService.refreshTokens(request.getHeader("Authorization"))
-        if(tokenPair.isEmpty()) {
+        val tokenMap = jwtService.refreshTokens(request.getHeader("Authorization"))
+        if(tokenMap.isEmpty()) {
             return ResponseEntity.ok(
             RefreshAccessTokenResponse(
                 message = "토큰 재발급 실패",
@@ -29,8 +29,8 @@ class JwtApi(
                 result = false
             ))
         } else {
-            val accessTokenCookie = cookieUtil.createAccessTokenCookie(tokenPair["accessToken"].toString())
-            val refreshTokenCookie = cookieUtil.createRefreshTokenCookie(tokenPair["refreshToken"].toString())
+            val accessTokenCookie = cookieUtil.createAccessTokenCookie(tokenMap["accessToken"].toString())
+            val refreshTokenCookie = cookieUtil.createRefreshTokenCookie(tokenMap["refreshToken"].toString())
             response.addCookie(accessTokenCookie)
             response.addCookie(refreshTokenCookie)
             return ResponseEntity.ok(

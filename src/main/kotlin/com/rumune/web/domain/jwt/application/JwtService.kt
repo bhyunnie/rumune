@@ -37,8 +37,9 @@ class JwtService(
             oldToken.jwt = refreshToken
             jwtRepository.save(oldToken)
             return mapOf("accessToken" to accessToken, "refreshToken" to refreshToken)
+        } else {
+            throw Exception("인증이 만료되었습니다.")
         }
-        return mapOf()
     }
     /**
      * access token 생성
