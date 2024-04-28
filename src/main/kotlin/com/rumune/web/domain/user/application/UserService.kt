@@ -94,7 +94,7 @@ class UserService(
         }
     }
     /**
-     * 권한 제거 
+     * 권한 제거
      */
     fun removeAuthority(email: String,authority: String) {
         val userOptional = userRepository.findByEmail(email)
@@ -124,13 +124,14 @@ class UserService(
         val accessToken = jwtService.generateAccessToken(user.email)
         val refreshToken = jwtService.generateRefreshToken(user.email)
 
-        val refreshTokenOptional = refreshTokenRepository.findByUserId(user.id)
-        if (refreshTokenOptional.isEmpty) {
-            refreshTokenRepository.save(JsonWebToken(jwt=refreshToken, userId = user.id))
-        } else {
-            val savedRefreshToken = refreshTokenOptional.get()
-            savedRefreshToken.jwt = refreshToken
-            refreshTokenRepository.save(savedRefreshToken)
+        refreshTokenRepository.findByUserId(user.id).run {
+            if (isEmpty) {
+                refreshTokenRepository.save(JsonWebToken(jwt = refreshToken, userId = user.id))
+            } else {
+                val savedRefreshToken = get()
+                savedRefreshToken.jwt = refreshToken
+                refreshTokenRepository.save(savedRefreshToken)
+            }
         }
 
         return AuthenticationResponse(
