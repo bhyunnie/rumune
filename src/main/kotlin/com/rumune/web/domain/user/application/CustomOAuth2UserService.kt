@@ -2,10 +2,10 @@ package com.rumune.web.domain.user.application
 
 import com.rumune.web.domain.cart.entity.Cart
 import com.rumune.web.domain.cart.repository.CartRepository
+import com.rumune.web.domain.user.dto.const.OauthProvider
 import com.rumune.web.domain.user.entity.*
 import com.rumune.web.domain.user.repository.UserRepository
 import com.rumune.web.global.exception.OAuth2AlreadyExistException
-import org.springframework.security.core.GrantedAuthority
 import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest
@@ -27,40 +27,42 @@ class CustomOAuth2UserService(
      */
     @Override
     override fun loadUser(request: OAuth2UserRequest):OAuth2User {
-        val userInfo: OAuth2UserInfo?
+
         val oAuth2User:OAuth2User = super.loadUser(request)
         val provider = request.clientRegistration.registrationId
-        userInfo = when(provider.uppercase()) {
-            "GOOGLE" -> GoogleUserInfo(oAuth2User.attributes)
-            "KAKAO" -> KakaoUserInfo(oAuth2User.attributes)
-            "DISCORD" -> DiscordUserInfo(oAuth2User.attributes)
-            "NAVER" -> NaverUserInfo(oAuth2User.attributes)
+
+        val userInfo: OAuth2UserInfo = when(provider.uppercase()) {
+            OauthProvider.GOOGLE.name -> GoogleUserInfo(oAuth2User.attributes)
+            OauthProvider.KAKAO.name -> KakaoUserInfo(oAuth2User.attributes)
+            OauthProvider.DISCORD.name -> DiscordUserInfo(oAuth2User.attributes)
+            OauthProvider.NAVER.name -> NaverUserInfo(oAuth2User.attributes)
             else -> null
-        }
-        if(userInfo == null) return oAuth2User
+        } ?: return oAuth2User
+
         val userOptional = userRepository.findByEmail(userInfo.getEmail())
-        val authorities:Set<SimpleGrantedAuthority>
-        if (userOptional.isEmpty) {
-            val user = userRepository.save(
-                User(
-                    provider = userInfo.getProvider(),
-                    email = userInfo.getEmail(),
-                    pwd = "",
-                    profileImage = userInfo.getProfileImage(),
-                    providerId = userInfo.getId(),
-                    name = userInfo.getName()
+
+        val authorities:Set<SimpleGrantedAuthority> = run {
+            if (userOptional.isEmpty) {
+                val user = userRepository.save(
+                    User(
+                        provider = userInfo.getProvider(),
+                        email = userInfo.getEmail(),
+                        pwd = "",
+                        profileImage = userInfo.getProfileImage(),
+                        providerId = userInfo.getId(),
+                        name = userInfo.getName()
+                    )
                 )
-            )
-            cartRepository.save(
-                Cart(user = user)
-            )
-            userService.addAuthority(userInfo.getEmail(),"ROLE_USER")
-            authorities = HashSet(listOf(SimpleGrantedAuthority("ROLE_USER")))
-        } else if (userOptional.get().provider != provider) {
-            throw OAuth2AlreadyExistException("이미 다른 서비스를 통해 가입 내역이 있는 이메일입니다.", userOptional.get().provider, userOptional.get().email)
-        } else {
-            authorities = userOptional.get().authorities.map{SimpleGrantedAuthority(it.name)}.toSet()
+                cartRepository.save(Cart(user = user))
+                userService.addAuthority(userInfo.getEmail(),"ROLE_USER")
+                HashSet(listOf(SimpleGrantedAuthority("ROLE_USER")))
+            } else if (userOptional.get().provider != provider) {
+                throw OAuth2AlreadyExistException("이미 다른 서비스를 통해 가입 내역이 있는 이메일입니다.", userOptional.get().provider, userOptional.get().email)
+            } else {
+                userOptional.get().authorities.map{SimpleGrantedAuthority(it.name)}.toSet()
+            }
         }
-        return DefaultOAuth2User(authorities ?: listOf(), userInfo.getAttributes(), "email")
+
+        return DefaultOAuth2User(authorities, userInfo.getAttributes(), "email")
     }
 }
