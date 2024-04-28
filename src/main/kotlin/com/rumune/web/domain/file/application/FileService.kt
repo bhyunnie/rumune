@@ -4,7 +4,6 @@ import com.amazonaws.services.s3.AmazonS3Client
 import com.amazonaws.services.s3.model.CannedAccessControlList
 import com.amazonaws.services.s3.model.ObjectMetadata
 import com.amazonaws.services.s3.model.PutObjectRequest
-import com.rumune.web.domain.file.dto.FileDto
 import com.rumune.web.domain.file.entity.File
 import com.rumune.web.domain.file.repository.FileRepository
 import com.rumune.web.global.properties.CloudProperties
@@ -34,9 +33,11 @@ class FileService(
             val ext = file.originalFilename?.split(".")?.last() ?: ""
             val fileName = "${fileKey}.$ext"
             val inputStream: InputStream = file.inputStream
-            val metadata = ObjectMetadata()
-            metadata.contentType = file.contentType
-            metadata.contentLength = file.size
+            val metadata = ObjectMetadata().apply {
+                contentType = file.contentType
+                contentLength = file.size
+            }
+
             amazonS3Client.putObject(
                 PutObjectRequest(bucketName, fileName, inputStream, metadata).withCannedAcl(
                     CannedAccessControlList.PublicRead))
@@ -50,16 +51,18 @@ class FileService(
      * 파일 업로드 (단건)
      * TODO 수정 필요, 다건 용 파일 업로드 로직 필요
      */
-    fun createFile(file:MultipartFile, userId:Long, directory:String): File {
+    fun createFile(file: MultipartFile, userId: Long, directory: String): File {
         val fileUUID = UUID.randomUUID()
-        val fileURL = uploadImageToS3(file,fileUUID,directory)
-        val result = fileRepository.save(File(
-            fileUUID = fileUUID,
-            uploadUserId = userId,
-            fileSize = file.size,
-            fileURL = fileURL,
-        ))
-        return result
+        val fileURL = uploadImageToS3(file, fileUUID, directory)
+
+        return fileRepository.save(
+            File(
+                fileUUID = fileUUID,
+                uploadUserId = userId,
+                fileSize = file.size,
+                fileURL = fileURL,
+            )
+        )
     }
 
     private fun removeSlash (directory: String):String {
