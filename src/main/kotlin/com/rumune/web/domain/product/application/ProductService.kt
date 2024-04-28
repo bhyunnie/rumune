@@ -24,18 +24,18 @@ class ProductService(
      */
     fun registProduct(request: CreateProductRequest, hsr:HttpServletRequest):Product {
         try {
-            val fileList = mutableListOf<ProductImage>()
             val userId = validateUtil.extractUserIdFromBearerToken(hsr)
             val product = createProduct(request.name,request.price,request.quantityLimit, request.categoryId)
-            for(i in request.files.indices) {
-                val file = request.files[i]
+            val fileList = request.files.mapIndexed { index, file ->
                 val uploadedFile = fileService.createFile(file, userId, "/product")
-                fileList.add(ProductImage(
+
+                productFileService.createProductFile(product, uploadedFile, index)
+
+                ProductImage(
                     product = product,
                     file = uploadedFile,
-                    order = i
-                ))
-                productFileService.createProductFile(product, uploadedFile, i)
+                    order = index
+                )
             }
             product.image = fileList.toMutableSet()
             return product
