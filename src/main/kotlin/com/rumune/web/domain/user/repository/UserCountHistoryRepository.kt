@@ -6,6 +6,6 @@ import org.springframework.stereotype.Repository
 import java.time.OffsetDateTime
 
 @Repository
-interface UserCountHistoryRepository:JpaRepository<UserCountHistory, Long> {
-    fun findUserCountHistoryBySnapShotTimeIsGreaterThanEqual(snapShotTime: OffsetDateTime):List<UserCountHistory>
+interface UserCountHistoryRepository : JpaRepository<UserCountHistory, Long> {
+    fun findUserCountHistoryBySnapShotTimeIsGreaterThanEqual(snapShotTime: OffsetDateTime): List<UserCountHistory>
 }

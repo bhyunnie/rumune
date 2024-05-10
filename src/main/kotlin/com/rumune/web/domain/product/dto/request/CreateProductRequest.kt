@@ -5,7 +5,7 @@ import org.springframework.web.multipart.MultipartFile
 class CreateProductRequest(
     val files: List<MultipartFile>,
     val quantityLimit: Int,
-    val price:Int,
+    val price: Int,
     val name: String,
-    val categoryId: Long
+    val categoryId: Long,
 )

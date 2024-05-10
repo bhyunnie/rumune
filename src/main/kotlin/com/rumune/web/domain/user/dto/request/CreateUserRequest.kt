@@ -11,7 +11,7 @@ class CreateUserRequest(
     val pwd: String,
 ) {
     companion object {
-        fun from (user:User) {
+        fun from(user: User) {
             CreateUserRequest(
                 email = user.email,
                 provider = user.provider,

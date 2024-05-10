@@ -1,7 +1,7 @@
 package com.rumune.web.global.security.filter
 
-import com.rumune.web.domain.user.application.UserService
 import com.rumune.web.domain.jwt.application.JwtService
+import com.rumune.web.domain.user.application.UserService
 import com.rumune.web.global.util.JwtUtil
 import jakarta.servlet.FilterChain
 import jakarta.servlet.http.HttpServletRequest
@@ -18,8 +18,8 @@ import org.springframework.web.filter.OncePerRequestFilter
 class JwtAuthenticationFilter(
     private val jwtService: JwtService,
     private val userService: UserService,
-    private val jwtUtil: JwtUtil
-): OncePerRequestFilter() {
+    private val jwtUtil: JwtUtil,
+) : OncePerRequestFilter() {
     companion object {
         const val HEADER_AUTHORIZATION = "Authorization"
     }
@@ -28,12 +28,12 @@ class JwtAuthenticationFilter(
     override fun doFilterInternal(
         request: HttpServletRequest,
         response: HttpServletResponse,
-        filterChain: FilterChain
+        filterChain: FilterChain,
     ) {
         try {
-            val authorizationHeader:String? = request.getHeader(HEADER_AUTHORIZATION)
+            val authorizationHeader: String? = request.getHeader(HEADER_AUTHORIZATION)
             if (authorizationHeader.hasNotToken()) {
-                filterChain.doFilter(request,response)
+                filterChain.doFilter(request, response)
                 return
             }
 
@@ -45,27 +45,30 @@ class JwtAuthenticationFilter(
             if (email.isNotEmpty() && SecurityContextHolder.getContext().authentication == null) {
                 val userInfo = userService.findUserByEmail(email)
                 val foundUser = userService.loadUserByUsername(userInfo.email)
-                if(jwtService.validToken(token, foundUser, email)) updateContext(foundUser, request)
+                if (jwtService.validToken(token, foundUser, email)) updateContext(foundUser, request)
             }
             val userId = jwtUtil.extractUserIdFromBearerToken(request)
-            request.setAttribute("userId",userId)
-            filterChain.doFilter(request,response)
-        } catch (e:Exception){
+            request.setAttribute("userId", userId)
+            filterChain.doFilter(request, response)
+        } catch (e: Exception) {
             throw e
         }
     }
 
-    private fun updateContext(user:UserDetails,request:HttpServletRequest) {
-        val authenticationToken = UsernamePasswordAuthenticationToken(user,null,user.authorities)
+    private fun updateContext(
+        user: UserDetails,
+        request: HttpServletRequest,
+    ) {
+        val authenticationToken = UsernamePasswordAuthenticationToken(user, null, user.authorities)
         authenticationToken.details = WebAuthenticationDetailsSource().buildDetails(request)
         SecurityContextHolder.getContext().authentication = authenticationToken
     }
 
-    private fun String?.hasNotToken():Boolean {
+    private fun String?.hasNotToken(): Boolean {
         return this == null || !this.startsWith("Bearer ")
     }
 
-    private fun String.extractTokenValue():String {
+    private fun String.extractTokenValue(): String {
         return this.substringAfter("Bearer ")
     }
 }

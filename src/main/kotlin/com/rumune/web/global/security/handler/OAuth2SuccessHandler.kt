@@ -15,12 +15,12 @@ import org.springframework.stereotype.Component
 class OAuth2SuccessHandler(
     private val userService: UserService,
     private val jwtService: JwtService,
-    private val cookieUtil:CookieUtil
-): AuthenticationSuccessHandler {
+    private val cookieUtil: CookieUtil,
+) : AuthenticationSuccessHandler {
     override fun onAuthenticationSuccess(
         request: HttpServletRequest,
         response: HttpServletResponse,
-        authentication: Authentication?
+        authentication: Authentication?,
     ) {
         if (authentication == null) throw NotFoundException("인증 정보가 없습니다.")
         val principal = authentication.principal as DefaultOAuth2User

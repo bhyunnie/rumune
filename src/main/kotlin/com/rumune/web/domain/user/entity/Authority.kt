@@ -6,15 +6,15 @@ import org.springframework.security.core.GrantedAuthority
 @Entity
 @Table(name = "authorities")
 @IdClass(Authority::class)
-data class Authority (
+data class Authority(
     @Id
     @ManyToOne(fetch = FetchType.EAGER, cascade = [CascadeType.REMOVE])
-    @JoinColumn(name ="user_id", nullable = false)
+    @JoinColumn(name = "user_id", nullable = false)
     var userId: User,
     @Id
-    @Column(name="name")
+    @Column(name = "name")
     var name: String,
-):GrantedAuthority {
+) : GrantedAuthority {
     override fun getAuthority(): String {
         return this.name
     }

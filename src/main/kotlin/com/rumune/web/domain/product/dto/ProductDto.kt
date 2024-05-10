@@ -12,22 +12,20 @@ class ProductDto(
     val category: List<String>,
     val image: List<String>,
     override val thumbnail: String,
-    override val stock: Int
-):ProductCommonDto {
+    override val stock: Int,
+) : ProductCommonDto {
     companion object {
-        fun from (
-            p:Product
-        ): ProductDto {
+        fun from(p: Product): ProductDto {
             return ProductDto(
                 id = p.id,
                 name = p.name,
                 price = p.price,
                 quantityLimit = p.quantityLimit,
                 createdAt = DateUtil().offsetDateTimeToYYYYMMDD(p.createdAt),
-                category = p.categories.map {it.name},
-                image = p.image.sortedBy { it.order }.map{it.file.fileURL},
-                thumbnail = p.image.sortedBy{ it.order }.first().file.fileURL,
-                stock = p.stock
+                category = p.categories.map { it.name },
+                image = p.image.sortedBy { it.order }.map { it.file.fileURL },
+                thumbnail = p.image.sortedBy { it.order }.first().file.fileURL,
+                stock = p.stock,
             )
         }
     }

@@ -21,41 +21,55 @@ class ProductPostService(
     private val userRepository: UserRepository,
     private val fileService: FileService,
     private val productPostProductRepository: ProductPostProductRepository,
-    private val productPostFileRepository: ProductPostFileRepository
+    private val productPostFileRepository: ProductPostFileRepository,
 ) {
     /**
      * 상품 게시글 작성
      */
     fun createProductPost(
-        thumbnail:MultipartFile, title:String, discount:Int, deliveryFee:Int,
-        productIdList:List<Long>, content: String, userId:Long, domain:String,postImageURLList:List<String>):ProductPost {
+        thumbnail: MultipartFile,
+        title: String,
+        discount: Int,
+        deliveryFee: Int,
+        productIdList: List<Long>,
+        content: String,
+        userId: Long,
+        domain: String,
+        postImageURLList: List<String>,
+    ): ProductPost {
         val postUUID = UUID.randomUUID()
         val user = userRepository.findById(userId)
-        val file = fileService.createFile(thumbnail,user.get().id,"/product_post")
-        val fileUUIDList = postImageURLList.map{productImageURL -> productImageURL.split("/").last().split(".").first()}
-        val post = productPostRepository.save(
-            ProductPost(
-                uuid = postUUID,
-                title = title,
-                content = content,
-                discount = discount.toDouble(),
-                deliveryFee = deliveryFee,
-                isPosted = true,
-                createdBy = user.get(),
-                thumbnailURL = file.fileURL,
+        val file = fileService.createFile(thumbnail, user.get().id, "/product_post")
+        val fileUUIDList =
+            postImageURLList.map { productImageURL -> productImageURL.split("/").last().split(".").first() }
+        val post =
+            productPostRepository.save(
+                ProductPost(
+                    uuid = postUUID,
+                    title = title,
+                    content = content,
+                    discount = discount.toDouble(),
+                    deliveryFee = deliveryFee,
+                    isPosted = true,
+                    createdBy = user.get(),
+                    thumbnailURL = file.fileURL,
+                ),
             )
-        )
-        val products = productIdList.map{productId ->
-            productPostProductRepository.save(ProductPostProduct(product=Product(productId), productPost = post))
-        }
-        val files = fileUUIDList.mapIndexed{index,fileUUID ->
-            productPostFileRepository.save(ProductPostFile(
-                productPost = post,
-                file = File(fileUUID = UUID.fromString(fileUUID)),
-                order = index,
-                isUse = true
-            ))
-        }
+        val products =
+            productIdList.map { productId ->
+                productPostProductRepository.save(ProductPostProduct(product = Product(productId), productPost = post))
+            }
+        val files =
+            fileUUIDList.mapIndexed { index, fileUUID ->
+                productPostFileRepository.save(
+                    ProductPostFile(
+                        productPost = post,
+                        file = File(fileUUID = UUID.fromString(fileUUID)),
+                        order = index,
+                        isUse = true,
+                    ),
+                )
+            }
         post.products = products
         post.image = files
         return post
@@ -66,21 +80,23 @@ class ProductPostService(
      */
     fun findAll(): List<ProductPost> {
         val postList = productPostRepository.findAll()
-        if(postList.isEmpty()) throw NotFoundException("게시글이 없습니다.")
+        if (postList.isEmpty()) throw NotFoundException("게시글이 없습니다.")
         return postList
     }
+
     /**
      * 상품 게시글 조회 By 카테고리 (다건)
      */
-    fun findPostByCategory(category:String): List<ProductPost> {
+    fun findPostByCategory(category: String): List<ProductPost> {
         val productPostList = productPostRepository.findProductPostByCategoryName(category)
         if (productPostList.isEmpty()) throw NotFoundException("게시글을 찾을 수 없습니다.")
         return productPostList
     }
+
     /**
      * 상품 게시글 조회 (단건)
      */
-    fun findPostByUUID(id:UUID): ProductPost {
+    fun findPostByUUID(id: UUID): ProductPost {
         val postOptional = productPostRepository.findById(id)
         if (postOptional.isEmpty) throw NotFoundException("게시글을 찾을 수 없습니다.")
         return postOptional.get()

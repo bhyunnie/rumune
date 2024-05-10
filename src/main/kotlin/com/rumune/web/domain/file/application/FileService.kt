@@ -18,29 +18,34 @@ class FileService(
     private val cloudProperties: CloudProperties,
     private val amazonS3Client: AmazonS3Client,
 ) {
-
     /**
      * 파일을 S3 에 업로드 (단건)
      */
-    private fun uploadImageToS3 (file: MultipartFile,fileKey:UUID, directory:String = ""):String {
+    private fun uploadImageToS3(
+        file: MultipartFile,
+        fileKey: UUID,
+        directory: String = "",
+    ): String {
         try {
             // 파일 확장자 체크
-            if(!checkIsImage(file)) throw Exception("이미지 파일이 아닙니다.")
+            if (!checkIsImage(file)) throw Exception("이미지 파일이 아닙니다.")
             // 디렉토리 넣을 때 슬래쉬를 넣을 수도 안넣을 수도 있게 (편의성)
-            val path = if(directory == "") "" else removeSlash(directory)
-            val bucketName = "${cloudProperties.aws.s3.bucket}/${path}"
+            val path = if (directory == "") "" else removeSlash(directory)
+            val bucketName = "${cloudProperties.aws.s3.bucket}/$path"
             // 확장자에 . 이 여러개 있는 case 대응
             val ext = file.originalFilename?.split(".")?.last() ?: ""
-            val fileName = "${fileKey}.$ext"
+            val fileName = "$fileKey.$ext"
             val inputStream: InputStream = file.inputStream
             val metadata = ObjectMetadata()
             metadata.contentType = file.contentType
             metadata.contentLength = file.size
             amazonS3Client.putObject(
                 PutObjectRequest(bucketName, fileName, inputStream, metadata).withCannedAcl(
-                    CannedAccessControlList.PublicRead))
+                    CannedAccessControlList.PublicRead,
+                ),
+            )
             return amazonS3Client.getUrl(bucketName, fileName).toString()
-        } catch (e : Exception) {
+        } catch (e: Exception) {
             throw e
         }
     }
@@ -49,24 +54,40 @@ class FileService(
      * 파일 업로드 (단건)
      * TODO 수정 필요, 다건 용 파일 업로드 로직 필요
      */
-    fun createFile(file:MultipartFile, userId:Long, directory:String): File {
+    fun createFile(
+        file: MultipartFile,
+        userId: Long,
+        directory: String,
+    ): File {
         val fileUUID = UUID.randomUUID()
-        val fileURL = uploadImageToS3(file,fileUUID,directory)
-        val result = fileRepository.save(File(
-            fileUUID = fileUUID,
-            uploadUserId = userId,
-            fileSize = file.size,
-            fileURL = fileURL,
-        ))
+        val fileURL = uploadImageToS3(file, fileUUID, directory)
+        val result =
+            fileRepository.save(
+                File(
+                    fileUUID = fileUUID,
+                    uploadUserId = userId,
+                    fileSize = file.size,
+                    fileURL = fileURL,
+                ),
+            )
         return result
     }
 
-    private fun removeSlash (directory: String):String {
+    private fun removeSlash(directory: String): String {
         return directory.replace("/", "")
     }
 
-    private fun checkIsImage (file:MultipartFile): Boolean {
-        return file.contentType in arrayOf("image/jpeg", "image/png","file/jpg", "image/webp", "image/svg+xml",
-            "image/bmp", "file/x-icon", "file/vnd.microsoft.icon")
+    private fun checkIsImage(file: MultipartFile): Boolean {
+        return file.contentType in
+            arrayOf(
+                "image/jpeg",
+                "image/png",
+                "file/jpg",
+                "image/webp",
+                "image/svg+xml",
+                "image/bmp",
+                "file/x-icon",
+                "file/vnd.microsoft.icon",
+            )
     }
 }

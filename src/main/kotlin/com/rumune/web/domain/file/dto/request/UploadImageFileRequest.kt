@@ -5,6 +5,5 @@ import org.springframework.web.multipart.MultipartFile
 
 class UploadImageFileRequest(
     val file: MultipartFile,
-    val domain: Domain
-) {
-}
+    val domain: Domain,
+)

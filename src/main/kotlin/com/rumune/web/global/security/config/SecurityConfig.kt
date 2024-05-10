@@ -17,7 +17,6 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import java.time.OffsetDateTime
 import java.util.Optional
 
-
 @Configuration
 @EnableWebSecurity
 class SecurityConfig(
@@ -29,11 +28,11 @@ class SecurityConfig(
         http: HttpSecurity,
         jwtAuthenticationFilter: JwtAuthenticationFilter,
         oAuth2SuccessHandler: OAuth2SuccessHandler,
-        authenticationFailedHandler:AuthenticationFailedHandler,
-        oAuth2FailedHandler: OAuth2FailedHandler
+        authenticationFailedHandler: AuthenticationFailedHandler,
+        oAuth2FailedHandler: OAuth2FailedHandler,
     ): SecurityFilterChain {
         http
-            .httpBasic{ hb ->
+            .httpBasic { hb ->
                 hb.disable()
             }
             .formLogin { form ->
@@ -58,18 +57,18 @@ class SecurityConfig(
                         "/api/v1/category",
                         "/api/v1/post/product/**",
                         "/swagger-ui/**",
-                        "/v3/api-docs/**"
+                        "/v3/api-docs/**",
                     ).permitAll()
                     .requestMatchers("/api/v1/admin/**").hasRole("ADMIN")
                     .anyRequest().authenticated()
             }
-            .exceptionHandling{ exception ->
+            .exceptionHandling { exception ->
                 exception.authenticationEntryPoint(authenticationFailedHandler)
             }
-            .oauth2Login{ oauth2Login ->
-                oauth2Login.userInfoEndpoint {
-                    userInfoEndpoint -> userInfoEndpoint.userService(customOAuth2UserService)
-                    .oidcUserService(customOidcUserService)
+            .oauth2Login { oauth2Login ->
+                oauth2Login.userInfoEndpoint { userInfoEndpoint ->
+                    userInfoEndpoint.userService(customOAuth2UserService)
+                        .oidcUserService(customOidcUserService)
                 }
                     .successHandler(oAuth2SuccessHandler)
                     .failureHandler(oAuth2FailedHandler)

@@ -4,5 +4,5 @@ enum class Providers {
     NAVER,
     DISCORD,
     GOOGLE,
-    KAKAO
+    KAKAO,
 }

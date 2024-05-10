@@ -4,13 +4,13 @@ import com.rumune.web.domain.jwt.entity.JsonWebToken
 
 class JsonWebTokenDto(
     val userId: Long,
-    val token: String
+    val token: String,
 ) {
     companion object {
-        fun from(j: JsonWebToken):JsonWebTokenDto {
+        fun from(j: JsonWebToken): JsonWebTokenDto {
             return JsonWebTokenDto(
                 userId = j.userId,
-                token = j.jwt
+                token = j.jwt,
             )
         }
     }

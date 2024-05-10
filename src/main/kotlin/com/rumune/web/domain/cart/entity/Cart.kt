@@ -9,13 +9,10 @@ class Cart(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long = 0,
-
     @OneToOne(cascade = [(CascadeType.REMOVE)])
-    @JoinColumn(name="user_id")
+    @JoinColumn(name = "user_id")
     val user: User,
-
     @OneToMany(mappedBy = "cart")
     @JsonManagedReference
-    val product:List<CartProduct> = listOf(),
-) {
-}
+    val product: List<CartProduct> = listOf(),
+)

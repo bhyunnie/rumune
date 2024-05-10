@@ -19,28 +19,31 @@ class CategoryApi(
      * 카테고리 생성 (단건)
      */
     @PostMapping("/admin/api/v1/category")
-    fun createCategory(@RequestParam categoryName:String):ResponseEntity<CreateCategoryResponse> {
+    fun createCategory(
+        @RequestParam categoryName: String,
+    ): ResponseEntity<CreateCategoryResponse> {
         val category = categoryService.createCategory(categoryName)
         return ResponseEntity.ok(
             CreateCategoryResponse(
                 message = "카테고리 추가 완료",
                 status = Responses.OK,
-                result = CategoryDto.from(category)
-            )
+                result = CategoryDto.from(category),
+            ),
         )
     }
+
     /**
      * 카테고리 조회 (다건)
      */
     @GetMapping("/api/v1/category")
-    fun findAllCategory():ResponseEntity<CategoryResponse> {
+    fun findAllCategory(): ResponseEntity<CategoryResponse> {
         val categoryList = categoryService.findAllCategory()
         return ResponseEntity.ok(
             CategoryResponse(
                 message = "카테고리 조회 완료",
                 status = Responses.OK,
-                result = categoryList.map{CategoryDto.from(it)}
-            )
+                result = categoryList.map { CategoryDto.from(it) },
+            ),
         )
     }
 }

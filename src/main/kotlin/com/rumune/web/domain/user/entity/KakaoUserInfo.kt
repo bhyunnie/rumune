@@ -2,8 +2,8 @@ package com.rumune.web.domain.user.entity
 
 import org.springframework.security.oauth2.core.user.OAuth2User
 
-class KakaoUserInfo(user:OAuth2User): OAuth2UserInfo {
-    override val attributes:Map<String,Any> = user.attributes
+class KakaoUserInfo(user: OAuth2User) : OAuth2UserInfo {
+    override val attributes: Map<String, Any> = user.attributes
     private val properties = attributes["properties"] as Map<*, *>
     override val id = attributes["id"].toString()
     override val provider = "kakao"

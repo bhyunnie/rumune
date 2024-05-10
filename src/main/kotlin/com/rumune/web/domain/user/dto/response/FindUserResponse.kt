@@ -7,5 +7,5 @@ import com.rumune.web.global.enum.Responses
 class FindUserResponse(
     override val message: String,
     override val status: Responses,
-    override val result: UserDto
-) :CommonResponse<UserDto>
+    override val result: UserDto,
+) : CommonResponse<UserDto>

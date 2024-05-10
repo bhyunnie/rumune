@@ -10,8 +10,9 @@ class CommonApi {
     fun index(): ResponseEntity<String> {
         return ResponseEntity.ok("this is rumune")
     }
+
     @GetMapping("/api")
-    fun indexing():ResponseEntity<String> {
+    fun indexing(): ResponseEntity<String> {
         return ResponseEntity.ok("this is rumune api server")
     }
 }

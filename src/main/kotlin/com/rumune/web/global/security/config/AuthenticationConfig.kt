@@ -16,7 +16,7 @@ import org.springframework.security.crypto.password.PasswordEncoder
 
 @Configuration
 class AuthenticationConfig(
-    private val userService: UserService
+    private val userService: UserService,
 ) {
     @Bean
     fun passwordEncoder(): PasswordEncoder = NoOpPasswordEncoder.getInstance()
@@ -38,7 +38,7 @@ class AuthenticationConfig(
 
     @Bean
     fun roleHierarchy(): RoleHierarchy { // 권한 높낮이 설정
-        val roleHierarchy = RoleHierarchyImpl();
+        val roleHierarchy = RoleHierarchyImpl()
         roleHierarchy.setHierarchy("ROLE_ADMIN > ROLE_USER")
         return roleHierarchy
     }

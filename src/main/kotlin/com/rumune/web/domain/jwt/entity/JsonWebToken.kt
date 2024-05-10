@@ -8,17 +8,14 @@ import jakarta.persistence.Id
 import jakarta.persistence.Table
 
 @Entity
-@Table(name="json_web_token")
+@Table(name = "json_web_token")
 data class JsonWebToken(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", updatable = false)
-    val id:Long = 0,
-
-    @Column(name = "user_id" , nullable = false, unique = true)
+    val id: Long = 0,
+    @Column(name = "user_id", nullable = false, unique = true)
     val userId: Long,
-
-    @Column(name="jwt", nullable = false)
+    @Column(name = "jwt", nullable = false)
     var jwt: String,
-) {
-}
+)

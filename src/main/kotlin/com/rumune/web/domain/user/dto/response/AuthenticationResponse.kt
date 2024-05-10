@@ -1,8 +1,8 @@
 package com.rumune.web.domain.user.dto.response
 
-class AuthenticationResponse (
+class AuthenticationResponse(
     val userId: Long,
     val email: String,
     val accessToken: String,
-    val refreshToken: String
+    val refreshToken: String,
 )

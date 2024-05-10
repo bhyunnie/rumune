@@ -11,13 +11,16 @@ import org.springframework.context.annotation.Configuration
 class OpenAPIConfig {
     @Bean
     fun openAPI(): OpenAPI {
-        val info = Info()
-            .version("v1.0.0")
-            .title("RUMUNE API DOCUMENTATION")
-            .description("RUMUNE API 문서입니다.")
-        val components = Components().addSecuritySchemes(
-            "bearer-token", SecurityScheme().type(SecurityScheme.Type.HTTP).scheme("bearer").bearerFormat("JWT")
-        )
+        val info =
+            Info()
+                .version("v1.0.0")
+                .title("RUMUNE API DOCUMENTATION")
+                .description("RUMUNE API 문서입니다.")
+        val components =
+            Components().addSecuritySchemes(
+                "bearer-token",
+                SecurityScheme().type(SecurityScheme.Type.HTTP).scheme("bearer").bearerFormat("JWT"),
+            )
         return OpenAPI().info(info).components(components)
     }
 }
