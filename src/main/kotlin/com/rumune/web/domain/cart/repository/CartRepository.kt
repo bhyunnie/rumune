@@ -6,6 +6,6 @@ import org.springframework.stereotype.Repository
 import java.util.Optional
 
 @Repository
-interface CartRepository: JpaRepository<Cart,Long> {
+interface CartRepository : JpaRepository<Cart, Long> {
     fun findByUserId(userId: Long): Optional<Cart>
 }

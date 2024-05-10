@@ -9,10 +9,11 @@ class UserCountHistoryDto(
 ) {
     companion object {
         private val dateUtil: DateUtil = DateUtil()
+
         fun from(history: UserCountHistory): UserCountHistoryDto {
             return UserCountHistoryDto(
                 count = history.count,
-                time = dateUtil.offsetDateTimeToYYYYMMDDHHMMSS(history.snapShotTime)
+                time = dateUtil.offsetDateTimeToYYYYMMDDHHMMSS(history.snapShotTime),
             )
         }
     }

@@ -7,15 +7,12 @@ import java.time.OffsetDateTime
 @Table(name = "user_count_histories")
 data class UserCountHistory(
     @Id
-    @Column(name="id")
+    @Column(name = "id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     var id: Long? = 0,
-
     @Temporal(TemporalType.TIMESTAMP)
-    @Column(name="snapshot_time", nullable = false, updatable = false)
+    @Column(name = "snapshot_time", nullable = false, updatable = false)
     var snapShotTime: OffsetDateTime = OffsetDateTime.now(),
-
     @Column(name = "count")
     val count: Int,
-) {
-}
+)

@@ -7,6 +7,5 @@ import com.rumune.web.global.enum.Responses
 class AddProductToCartResponse(
     override val message: String,
     override val status: Responses,
-    override val result: List<CartProductDto>
-) :CommonResponse<List<CartProductDto>> {
-}
+    override val result: List<CartProductDto>,
+) : CommonResponse<List<CartProductDto>>

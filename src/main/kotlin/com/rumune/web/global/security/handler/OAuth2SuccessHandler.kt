@@ -1,9 +1,8 @@
 package com.rumune.web.global.security.handler
 
-import com.rumune.web.domain.jwt.entity.JsonWebToken
+import com.amazonaws.services.kms.model.NotFoundException
 import com.rumune.web.domain.jwt.application.JwtService
 import com.rumune.web.domain.user.application.UserService
-import com.rumune.web.domain.user.entity.User
 import com.rumune.web.global.util.CookieUtil
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
@@ -16,14 +15,14 @@ import org.springframework.stereotype.Component
 class OAuth2SuccessHandler(
     private val userService: UserService,
     private val jwtService: JwtService,
-    private val cookieUtil:CookieUtil
-): AuthenticationSuccessHandler {
+    private val cookieUtil: CookieUtil,
+) : AuthenticationSuccessHandler {
     override fun onAuthenticationSuccess(
         request: HttpServletRequest,
         response: HttpServletResponse,
-        authentication: Authentication?
+        authentication: Authentication?,
     ) {
-        if (authentication == null) throw Exception("Authentication is null.")
+        if (authentication == null) throw NotFoundException("인증 정보가 없습니다.")
         val principal = authentication.principal as DefaultOAuth2User
         val providerId = principal.attributes["id"].toString()
         val user = userService.findUserByProviderId(providerId)
@@ -32,7 +31,6 @@ class OAuth2SuccessHandler(
         val accessTokenCookie = cookieUtil.createAccessTokenCookie(accessToken)
         val refreshTokenCookie = cookieUtil.createRefreshTokenCookie(refreshToken)
         jwtService.updateJwt(user.id, refreshToken)
-
         response.addCookie(accessTokenCookie)
         response.addCookie(refreshTokenCookie)
         response.sendRedirect("http://localhost:3000")

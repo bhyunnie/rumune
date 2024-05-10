@@ -10,12 +10,12 @@ import org.springframework.stereotype.Component
 
 @Component
 class OAuth2FailedHandler(
-    private val clientProperties: ClientProperties
-):AuthenticationFailureHandler {
+    private val clientProperties: ClientProperties,
+) : AuthenticationFailureHandler {
     override fun onAuthenticationFailure(
         request: HttpServletRequest?,
         response: HttpServletResponse?,
-        exception: AuthenticationException?
+        exception: AuthenticationException?,
     ) {
         if (exception is OAuth2AlreadyExistException) {
             response?.sendRedirect("${clientProperties.url}/login/oauth2/failure?email=${exception.email}&provider=${exception.provider}")
@@ -23,7 +23,7 @@ class OAuth2FailedHandler(
             response?.contentType = "application/json"
             response?.status = HttpServletResponse.SC_FORBIDDEN
             response?.characterEncoding = "UTF-8"
-            response?.writer?.write("{\"status\": \"INTERNAL_SERVER_ERROR\",\"code\": \"NP\", \"message\": \"${exception?.message}\"}");
+            response?.writer?.write("{\"status\": \"INTERNAL_SERVER_ERROR\",\"code\": \"NP\", \"message\": \"${exception?.message}\"}")
         }
     }
 }

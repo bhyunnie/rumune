@@ -6,6 +6,5 @@ import com.rumune.web.global.enum.Responses
 class FindUserHistoryResponse(
     val status: Responses,
     val message: String,
-    val responseData: List<UserCountHistoryDto>
-) {
-}
+    val responseData: List<UserCountHistoryDto>,
+)

@@ -6,7 +6,7 @@ import org.springframework.stereotype.Component
 
 @Component
 class UserHistoryScheduler(
-    private val userHistoryService: UserHistoryService
+    private val userHistoryService: UserHistoryService,
 ) {
     @Scheduled(cron = "0 0 0 * * *")
     fun insertUserCountHistory() {

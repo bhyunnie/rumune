@@ -1,36 +1,21 @@
 package com.rumune.web.domain.user.entity
 
+import org.springframework.security.oauth2.core.user.OAuth2User
+
 class GoogleUserInfo(
-    private val attributes: Map<String,Any>
-): OAuth2UserInfo {
-    override fun getId(): String {
-        return attributes["sub"].toString()
-    }
-
-    override fun getProvider(): String {
-        return "google"
-    }
-
-    @Override
-    override fun getEmail(): String {
-        return attributes["email"].toString()
-    }
-
-    @Override
-    override fun getName(): String {
-        return attributes["name"].toString()
-    }
-
-    override fun getProfileImage(): String {
-        return attributes["picture"].toString()
-    }
-
-    override fun getAttributes(): Map<String, String> {
-        return mapOf(
+    user: OAuth2User,
+) : OAuth2UserInfo {
+    override val attributes: Map<String, Any> = user.attributes
+    override val id = attributes["sub"] as String
+    override val email = attributes["email"] as String
+    override val name = attributes["name"] as String
+    override val profileImage = attributes["picture"] as String
+    override val provider = "google"
+    override val claims =
+        mapOf(
             "id" to attributes["sub"].toString(),
             "email" to attributes["email"].toString(),
             "name" to attributes["name"].toString(),
-            "profile_image" to attributes["picture"].toString()
+            "profile_image" to attributes["picture"].toString(),
         )
-    }
 }

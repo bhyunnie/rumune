@@ -7,5 +7,5 @@ import com.rumune.web.global.enum.Responses
 class CreateCategoryResponse(
     override val message: String,
     override val status: Responses,
-    override val result: CategoryDto
-):CommonResponse<CategoryDto> {}
+    override val result: CategoryDto,
+) : CommonResponse<CategoryDto>

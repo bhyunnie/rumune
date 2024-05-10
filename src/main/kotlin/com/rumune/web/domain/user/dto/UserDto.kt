@@ -10,9 +10,9 @@ data class UserDto(
     var provider: String,
     var providerId: String,
     var username: String,
-    var profileImage:String,
+    var profileImage: String,
     var deprecated: Boolean,
-    var authorities: Set<Authority>
+    var authorities: Set<Authority>,
 ) {
     companion object {
         fun from(user: User): UserDto {
@@ -25,7 +25,7 @@ data class UserDto(
                 username = user.username,
                 profileImage = user.profileImage.toString(),
                 deprecated = user.deprecated,
-                authorities = user.authorities
+                authorities = user.authorities,
             )
         }
     }

@@ -3,12 +3,12 @@ package com.rumune.web.domain.file.dto
 import com.rumune.web.domain.file.entity.File
 
 class FileDto(
-    val fileURL:String
+    val fileURL: String,
 ) {
     companion object {
-        fun from (f:File): FileDto {
+        fun from(f: File): FileDto {
             return FileDto(
-                fileURL = f.fileURL
+                fileURL = f.fileURL,
             )
         }
     }

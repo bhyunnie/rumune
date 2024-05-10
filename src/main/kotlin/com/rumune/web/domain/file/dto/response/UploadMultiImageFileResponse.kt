@@ -7,6 +7,5 @@ import com.rumune.web.global.enum.Responses
 class UploadMultiImageFileResponse(
     override val message: String,
     override val status: Responses,
-    override val result: List<FileDto>
-): CommonResponse<List<FileDto>> {
-}
+    override val result: List<FileDto>,
+) : CommonResponse<List<FileDto>>

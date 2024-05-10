@@ -7,6 +7,5 @@ import com.rumune.web.global.enum.Responses
 class CreateProductPostResponse(
     override val message: String,
     override val status: Responses,
-    override val result: ProductPostDto
-) :CommonResponse<ProductPostDto> {
-}
+    override val result: ProductPostDto,
+) : CommonResponse<ProductPostDto>

@@ -1,34 +1,14 @@
 package com.rumune.web.domain.user.entity
 
-class KakaoUserInfo(private val attributes:Map<String,Any>): OAuth2UserInfo {
+import org.springframework.security.oauth2.core.user.OAuth2User
 
+class KakaoUserInfo(user: OAuth2User) : OAuth2UserInfo {
+    override val attributes: Map<String, Any> = user.attributes
     private val properties = attributes["properties"] as Map<*, *>
-    override fun getId(): String {
-        return attributes["id"].toString();
-    }
-
-    override fun getProvider(): String {
-        return "kakao"
-    }
-
-    override fun getEmail(): String {
-        return properties["email"].toString()
-    }
-
-    override fun getName(): String {
-        return properties["nickname"].toString()
-    }
-
-    override fun getProfileImage(): String {
-        return properties["profile_image"].toString()
-    }
-
-    override fun getAttributes(): Map<String, String> {
-        return mapOf(
-            "id" to attributes["id"].toString(),
-            "email" to attributes["email"].toString(),
-            "name" to attributes["nickname"].toString(),
-            "profile_image" to attributes["profile_image"].toString()
-        )
-    }
+    override val id = attributes["id"].toString()
+    override val provider = "kakao"
+    override val email = properties["email"].toString()
+    override val name = properties["nickname"].toString()
+    override val profileImage = properties["profile_image"].toString()
+    override val claims = mapOf("id" to id, "email" to email, "name" to name, "profile_image" to profileImage)
 }

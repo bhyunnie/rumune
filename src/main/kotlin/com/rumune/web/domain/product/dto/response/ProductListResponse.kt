@@ -7,7 +7,5 @@ import com.rumune.web.global.enum.Responses
 class ProductListResponse(
     override val message: String,
     override val status: Responses,
-    override val result: List<ProductDto>
-):CommonResponse<List<ProductDto>> {
-
-}
+    override val result: List<ProductDto>,
+) : CommonResponse<List<ProductDto>>
