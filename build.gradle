@@ -43,8 +43,8 @@ dependencies {
     testImplementation 'org.springframework.security:spring-security-test'
 }
 
-tasks.withType(KotlinCompile) {
-    kotlinOptions {
+tasks.withType(KotlinCompile).configureEach {
+    compilerOptions {
         freeCompilerArgs += '-Xjsr305=strict'
         jvmTarget = '17'
     }
