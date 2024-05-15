@@ -3,7 +3,9 @@ package com.trustprice.web.global.security.handler
 import com.amazonaws.services.kms.model.NotFoundException
 import com.trustprice.web.domain.jwt.application.JwtService
 import com.trustprice.web.domain.user.application.UserService
+import com.trustprice.web.domain.user.entity.User
 import com.trustprice.web.global.util.CookieUtil
+import jakarta.servlet.http.Cookie
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
 import org.springframework.security.core.Authentication
@@ -23,16 +25,27 @@ class OAuth2SuccessHandler(
         authentication: Authentication?,
     ) {
         if (authentication == null) throw NotFoundException("인증 정보가 없습니다.")
-        val principal = authentication.principal as DefaultOAuth2User
-        val providerId = principal.attributes["id"].toString()
-        val user = userService.findUserByProviderId(providerId)
-        val accessToken = jwtService.generateAccessToken(user.email)
-        val refreshToken = jwtService.generateRefreshToken(user.email)
-        val accessTokenCookie = cookieUtil.createAccessTokenCookie(accessToken)
-        val refreshTokenCookie = cookieUtil.createRefreshTokenCookie(refreshToken)
-        jwtService.updateJwt(user.id, refreshToken)
-        response.addCookie(accessTokenCookie)
-        response.addCookie(refreshTokenCookie)
-        response.sendRedirect("http://localhost:3000")
+        val user: User =
+            run {
+                val principal = authentication.principal as DefaultOAuth2User
+                val providerId = principal.attributes["id"].toString()
+                userService.findUserByProviderId(providerId)
+            }
+        val accessTokenCookie: Cookie =
+            run {
+                val accessToken = jwtService.generateAccessToken(user.email)
+                cookieUtil.createAccessTokenCookie(accessToken)
+            }
+        val refreshTokenCookie =
+            run {
+                val refreshToken = jwtService.generateRefreshToken(user.email)
+                jwtService.updateJwt(user.id, refreshToken)
+                cookieUtil.createRefreshTokenCookie(refreshToken)
+            }
+        response.apply {
+            addCookie(accessTokenCookie)
+            addCookie(refreshTokenCookie)
+            sendRedirect("http://localhost:3000")
+        }
     }
 }
