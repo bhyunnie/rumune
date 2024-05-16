@@ -11,6 +11,7 @@ import com.trustprice.web.domain.post.repository.ProductPostProductRepository
 import com.trustprice.web.domain.post.repository.ProductPostRepository
 import com.trustprice.web.domain.product.entity.Product
 import com.trustprice.web.domain.user.repository.UserRepository
+import org.springframework.data.redis.core.RedisTemplate
 import org.springframework.stereotype.Service
 import org.springframework.web.multipart.MultipartFile
 import java.util.*
@@ -22,6 +23,7 @@ class ProductPostService(
     private val fileService: FileService,
     private val productPostProductRepository: ProductPostProductRepository,
     private val productPostFileRepository: ProductPostFileRepository,
+    private val redisTemplate: RedisTemplate<String, String>,
 ) {
     /**
      * 상품 게시글 작성
@@ -97,8 +99,29 @@ class ProductPostService(
      * 상품 게시글 조회 (단건)
      */
     fun findPostByUUID(id: UUID): ProductPost {
-        val postOptional = productPostRepository.findById(id)
-        if (postOptional.isEmpty) throw NotFoundException("게시글을 찾을 수 없습니다.")
-        return postOptional.get()
+        val post =
+            productPostRepository.findById(id).orElseThrow {
+                NotFoundException("게시글을 찾을 수 없습니다.")
+            }
+        savePostUUIDOnRedis(id)
+        return post
+    }
+
+    /**
+     * 리스트 길이 500을 유지하는 레디스의 게시글 조회목록
+     */
+    private fun savePostUUIDOnRedis(id: UUID) {
+        val storedListSize = redisTemplate.opsForList().size("read_post") ?: 0
+        // 데이터 정합성 보장을 위해서 트랜잭션 방식으로 수행
+        redisTemplate.execute { connection ->
+            connection.apply {
+                multi()
+                listCommands().lPush("read_post".toByteArray(), id.toString().toByteArray())
+                if (storedListSize >= 500) {
+                    listCommands().rPop("read_post".toByteArray())
+                }
+                exec()
+            }
+        }
     }
 }
