@@ -25,7 +25,7 @@ class ProductPostApi(
     /**
      * 상품 게시글 작성
      */
-    @PostMapping("/admin/api/v1/post/product/all")
+    @PostMapping("/admin/api/v1/post/product")
     fun createProductPost(
         @ModelAttribute request: CreateProductPostRequest,
         hsr: HttpServletRequest,
@@ -75,12 +75,14 @@ class ProductPostApi(
     fun findPost(
         @PathVariable uuid: String,
     ): ResponseEntity<FindProductPostResponse> {
-        val productPost = productPostService.findPostByUUID(UUID.fromString(uuid))
         return ResponseEntity.ok().body(
             FindProductPostResponse(
                 message = "게시글 조회 성공",
                 status = Responses.OK,
-                result = ProductPostDto.from(productPost),
+                result =
+                    ProductPostDto.from(
+                        productPostService.findPostByUUID(UUID.fromString(uuid)),
+                    ),
             ),
         )
     }
@@ -92,13 +94,14 @@ class ProductPostApi(
     fun findPostByCategory(
         @RequestParam category: String,
     ): ResponseEntity<FindProductPostListResponse> {
-        val productPostList = productPostService.findPostByCategory(category)
         return ResponseEntity.ok()
             .body(
                 FindProductPostListResponse(
                     message = "게시글 조회 성공",
                     status = Responses.OK,
-                    result = productPostList.map { ProductPostDto.from(it) },
+                    result =
+                        productPostService.findPostByCategory(category)
+                            .map { ProductPostDto.from(it) },
                 ),
             )
     }
