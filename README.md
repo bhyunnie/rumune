@@ -21,15 +21,15 @@ RUMUNE 는 이커머스 프로젝트의 일환으로 같은 상품이지만 다�
 ![image](https://github.com/bhyunnie/trust-price/assets/129918927/51b7e5cf-2322-4f5d-867a-ab64a736a9b3)
 
 Redis 의 List 자료구조를 이용하여 Queue 와 같이 활용함
-> 게시물 조회 시 Redis 에 저장
-> 저장 되어 있는 500길이의 list 를 5분마다 스케줄링으로 10개로 축약함 (빈도수 상위 10개)
-> 상위 10개로 축약된 list 를 redis에 저장하여 제공
+- 게시물 조회 시 Redis 에 저장
+- 저장 되어 있는 500길이의 list 를 5분마다 스케줄링으로 10개로 축약함 (빈도수 상위 10개)
+- 상위 10개로 축약된 list 를 redis에 저장하여 제공
 
 2. OAuth2.0 로그인 기능
 ![image](https://github.com/bhyunnie/trust-price/assets/129918927/1fa78067-22ac-40e9-86ab-6a5b9d5d6ac3)
 
 Spring Security 를 활용하여 OAuth2.0 로그인 기능 구현
-> OAuth2.0 로그인 요청
-> 기존 회원 일 시 로그인
-> 기존 회원 아닐 시 회원 가입
-> 로그인 시 jwt (access, refresh Token) 쿠키로 반환
+- OAuth2.0 로그인 요청
+- 기존 회원 일 시 로그인
+- 기존 회원 아닐 시 회원 가입
+- 로그인 시 jwt (access, refresh Token) 쿠키로 반환
