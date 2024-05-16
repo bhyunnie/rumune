@@ -1,0 +1,134 @@
+baseUrl: 'http://localhost:8080'
+
+spring:
+  servlet:
+    multipart:
+      max-file-size:
+  devtools:
+    restart:
+      enabled:
+  datasource:
+    url:
+    username:
+    password:
+    driver-class-name:
+  security:
+    oauth2:
+      client:
+        registration:
+          discord:
+            client-id:
+            client-secret:
+            client-authentication-method:
+            authorization-grant-type:
+            redirect-uri:
+            scope:
+          kakao:
+            client-id:
+            client-secret:
+            client-authentication-method:
+            authorization-grant-type:
+            redirect-uri:
+            scope:
+          google:
+            client-id:
+            client-secret:
+            scope:
+          line:
+            client-id:
+            client-secret:
+            client-authentication-method:
+            authorization-grant-type:
+            redirect-uri:
+            scope:
+          naver:
+            client-id:
+            client-secret:
+            client-authentication-method:
+            authorization-grant-type:
+            redirect-uri:
+            scope:
+        provider:
+          discord:
+            authorization-uri:
+            token-uri:
+            user-info-uri:
+            user-name-attribute:
+          kakao:
+            authorization-uri:
+            token-uri:
+            user-info-uri:
+            user-name-attribute:
+            jwk-set-uri:
+          line:
+            authorization-uri:
+            token-uri:
+            user-info-uri:
+            user-name-attribute:
+            jwk-set-uri:
+          naver:
+            authorization-uri:
+            token-uri:
+            user-info-uri:
+            user-name-attribute:
+  jpa:
+    hibernate:
+      ddl-auto:
+    properties:
+      hibernate:
+        show_sql:
+        format_sql:
+        highlight_sql:
+        use_sql_comments:
+  data:
+    redis:
+      host:
+      port:
+logging:
+  level:
+    org:
+      springframework:
+        web:
+        security:
+      hibernate:
+        sql:
+        orm:
+          jdbc:
+            bind:
+server:
+  port:
+
+cloud:
+  aws:
+    stack:
+      auto:
+    region:
+      static:
+    s3:
+      bucket:
+    credentials:
+      access-key:
+      secret-key:
+
+jwt:
+  issuer:
+  secret_key:
+  access-token-expire-duration:
+  refresh-token-expire-duration:
+
+client:
+  url:
+
+springdoc:
+  default-consumes-media-type:
+  default-produces-media-type:
+  api-docs:
+    groups:
+      enabled:
+  swagger-ui:
+    operations-sorter:
+    tags-sorter:
+    path:
+    disable-swagger-default-url:
+    display-query-params-without-oauth2:
+  paths-to-match:
