@@ -99,7 +99,7 @@ class ProductPostService(
      * 상품 게시글 조회 (단건)
      */
     fun findPostByUUID(id: UUID): ProductPost {
-        val post =
+        val post: ProductPost =
             productPostRepository.findById(id).orElseThrow {
                 NotFoundException("게시글을 찾을 수 없습니다.")
             }
